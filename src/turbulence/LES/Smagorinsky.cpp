@@ -63,6 +63,14 @@ void Smagorinsky<Transport>::update_turbulent_viscosity(const FieldState fstate)
     }
 }
 
+template<typename Transport>
+TurbulenceModel::CoeffsDictType Smagorinsky<Transport>::model_coeffs() const
+{
+    return TurbulenceModel::CoeffsDictType{
+        {"Cs", this->m_Cs}
+    };
+}
+
 } // namespace turbulence
 
 INSTANTIATE_TURBULENCE_MODEL(Smagorinsky);

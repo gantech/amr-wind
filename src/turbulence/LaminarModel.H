@@ -18,7 +18,7 @@ public:
 
     virtual ~Laminar() = default;
 
-    virtual std::string model_name() override { return "laminar"; }
+    virtual std::string model_name() const override { return "laminar"; }
 
     //! Update the effective/turbulent viscosity field
     virtual void update_turbulent_viscosity(const FieldState fstate) override;
@@ -40,6 +40,9 @@ public:
 
     //! Interface to update scalar diffusivity based on Schmidt number
     virtual void update_scalar_diff(Field& deff, const std::string& name) override;
+
+    //! Return model coefficients dictionary
+    virtual TurbulenceModel::CoeffsDictType model_coeffs() const override;
 };
 
 }

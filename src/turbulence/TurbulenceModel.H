@@ -1,6 +1,8 @@
 #ifndef TURBULENCEMODEL_H
 #define TURBULENCEMODEL_H
 
+#include <unordered_map>
+
 #include "Factory.H"
 #include "FieldDescTypes.H"
 
@@ -15,6 +17,8 @@ namespace turbulence {
 class TurbulenceModel : public Factory<TurbulenceModel, CFDSim&>
 {
 public:
+    using CoeffsDictType = std::unordered_map<std::string, amrex::Real>;
+
     static std::string base_identifier() { return "TurbulenceModel"; }
 
     virtual ~TurbulenceModel() = default;
@@ -25,7 +29,7 @@ public:
 
     virtual void register_alphaeff_field(Field& alphaeff) = 0;
 
-    virtual std::string model_name() = 0;
+    virtual std::string model_name() const = 0;
 
     //! Return the dynamic viscosity (laminar) field
     virtual std::unique_ptr<ScratchField> mu() = 0;
@@ -59,6 +63,9 @@ public:
 
     //! Interface to update scalar diffusivity based on Schmidt number
     virtual void update_scalar_diff(Field& deff, const std::string& name) = 0;
+
+    //! Return model coefficients dictionary
+    virtual CoeffsDictType model_coeffs() const = 0;
 };
 
 }
