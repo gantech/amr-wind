@@ -143,6 +143,14 @@ void incflo::ApplyPredictor (bool incremental_projection)
                        : icns_fields.diff_term.state(amr_wind::FieldState::Old);
 
     // *************************************************************************************
+    // Compute viscosity / diffusive coefficients
+    // *************************************************************************************
+    m_sim.turbulence_model().update_turbulent_viscosity(amr_wind::FieldState::Old);
+    icns().compute_mueff(amr_wind::FieldState::Old);
+    for (auto& eqns: scalar_eqns())
+        eqns->compute_mueff(amr_wind::FieldState::Old);
+    
+    // *************************************************************************************
     // Define the forcing terms to use in the Godunov prediction
     // *************************************************************************************
     if (m_use_godunov)
@@ -152,14 +160,6 @@ void incflo::ApplyPredictor (bool incremental_projection)
             seqn->compute_source_term(amr_wind::FieldState::Old);
         }
     }
-
-    // *************************************************************************************
-    // Compute viscosity / diffusive coefficients
-    // *************************************************************************************
-    m_sim.turbulence_model().update_turbulent_viscosity(amr_wind::FieldState::Old);
-    icns().compute_mueff(amr_wind::FieldState::Old);
-    for (auto& eqns: scalar_eqns())
-        eqns->compute_mueff(amr_wind::FieldState::Old);
 
     // *************************************************************************************
     // Compute explicit viscous term
