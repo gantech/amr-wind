@@ -67,6 +67,8 @@ void ABL::post_init_actions()
 
     m_abl_wall_func.update_umean(m_pa);
 
+    m_abl_wall_func.ComputePlanar(m_sim);
+
     // Register ABL wall function for velocity
     m_velocity.register_custom_bc<ABLVelWallFunc>(m_abl_wall_func);
 }
