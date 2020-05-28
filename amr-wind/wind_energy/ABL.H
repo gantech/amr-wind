@@ -57,6 +57,7 @@ private:
     Field& m_mueff;
     Field& m_density;
     Field* m_temperature{nullptr};
+    Field* m_tke{nullptr};
 
     FieldPlaneAveraging m_pa;
     ABLWallFunction m_abl_wall_func;

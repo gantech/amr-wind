@@ -57,6 +57,16 @@ void ABL::initialize_fields(
             vbx, geom, velocity.array(mfi), density.array(mfi),
             temp.array(mfi));
     }
+
+    if (m_sim.repo().field_exists("tke")) {
+        m_tke = &(m_sim.repo().get_field("tke"));
+        auto& tke = (*m_tke)(level);
+
+        for (amrex::MFIter mfi(density); mfi.isValid(); ++mfi) {
+            const auto& vbx = mfi.validbox();
+            m_field_init->init_tke(vbx, geom, tke.array(mfi));
+        }
+    }
 }
 
 void ABL::post_init_actions()
