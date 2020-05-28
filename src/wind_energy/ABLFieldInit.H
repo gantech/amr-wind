@@ -27,6 +27,11 @@ public:
         const amrex::Array4<amrex::Real>& density,
         const amrex::Array4<amrex::Real>& tracer) const;
 
+    void init_tke(
+        const amrex::Box& vbx,
+        const amrex::Geometry& geom,
+        const amrex::Array4<amrex::Real>& tke) const;
+
 private:
     //! Initial velocity components
     amrex::Vector<amrex::Real> m_vel;
