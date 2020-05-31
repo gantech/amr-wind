@@ -3,6 +3,7 @@
 
 #include "Field.H"
 #include <AMReX_FArrayBox.H>
+#include "FieldPlaneAveraging.H"
 #include <cmath>
 
 namespace amr_wind {
@@ -334,8 +335,85 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real strainrate(
                      + (uy+vx)*(uy+vx) + (vz+wy)*(vz+wy) + (wx+uz)*(wx+uz));
 }
 
+template <typename Stencil>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real strainrate(
+    int i,
+    int j,
+    int k,
+    amrex::Real idx,
+    amrex::Real idy,
+    amrex::Real idz,
+    amrex::Array4<amrex::Real const> const& vel,
+    const FieldPlaneAveraging& pa,
+    const int pa_dir) noexcept
+{
+    using namespace amrex;
+
+    //Get the derivative of the average velocity along `pa_dir`
+    amrex::Vector<amrex::Real> avg_deriv{{0.0,0.0,0.0,
+                                          0.0,0.0,0.0,
+                                          0.0,0.0,0.0}};
+    for (int idim = 0; idim < AMREX_SPACEDIM; idim++)
+        avg_deriv[pa_dir*AMREX_SPACEDIM + idim] =
+            pa.line_derivative_of_average_cell(pa_dir, idim);
+    
+    Real cp1, c, cm1;
+
+    cp1 = Stencil::c00;
+    c   = Stencil::c01;
+    cm1 = Stencil::c02;
+
+    const Real ux =
+        (cp1*vel(i+1,j,k,0) + c*vel(i,j,k,0) + cm1*vel(i-1,j,k,0)) * idx
+        - avg_deriv[0];
+    const Real vx =
+        (cp1*vel(i+1,j,k,1) + c*vel(i,j,k,1) + cm1*vel(i-1,j,k,1)) * idx
+        - avg_deriv[1];
+    const Real wx =
+        (cp1*vel(i+1,j,k,2) + c*vel(i,j,k,2) + cm1*vel(i-1,j,k,2)) * idx
+        - avg_deriv[2];
+
+    cp1 = Stencil::c10;
+    c   = Stencil::c11;
+    cm1 = Stencil::c12;
+
+    const Real uy =
+        (cp1*vel(i,j+1,k,0) + c*vel(i,j,k,0) + cm1*vel(i,j-1,k,0)) * idy
+        - avg_deriv[3];
+    const Real vy =
+        (cp1*vel(i,j+1,k,1) + c*vel(i,j,k,1) + cm1*vel(i,j-1,k,1)) * idy
+        - avg_deriv[4];
+    const Real wy =
+        (cp1*vel(i,j+1,k,2) + c*vel(i,j,k,2) + cm1*vel(i,j-1,k,2)) * idy
+        - avg_deriv[5];
+    
+    cp1 = Stencil::c20;
+    c   = Stencil::c21;
+    cm1 = Stencil::c22;
+
+    const Real uz =
+        (cp1*vel(i,j,k+1,0) + c*vel(i,j,k,0) + cm1*vel(i,j,k-1,0)) * idz
+        - avg_deriv[6];
+    const Real vz =
+        (cp1*vel(i,j,k+1,1) + c*vel(i,j,k,1) + cm1*vel(i,j,k-1,1)) * idz
+        - avg_deriv[7];
+    const Real wz =
+        (cp1*vel(i,j,k+1,2) + c*vel(i,j,k,2) + cm1*vel(i,j,k-1,2)) * idz
+        - avg_deriv[8];
+    
+    return std::sqrt(2.0 * ux*ux + 2.0 * vy*vy + 2.0 * wz*wz
+                     + (uy+vx)*(uy+vx) + (vz+wy)*(vz+wy) + (wx+uz)*(wx+uz));
+}
+
+
 template<typename FType>
 void compute_strainrate(FType& field, const Field& velocity);
+
+template<typename FType, typename IndexSelector>
+void compute_fluct_strainrate( FType& field,
+                               const Field& vel,
+                               const FieldPlaneAveraging& pa,
+                               const IndexSelector& pa_dir);
 
 template<typename FType>
 void compute_gradient(FType& gradf, const Field& field);
