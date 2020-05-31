@@ -3,6 +3,8 @@
 
 #include <string>
 #include "TurbModelBase.H"
+#include "FieldPlaneAveraging.H"
+#include "ABL.H"
 
 namespace amr_wind {
 namespace turbulence {
@@ -19,7 +21,6 @@ public:
 
 protected:
     Field& m_vel;
-
     Field& m_turb_lscale;
     Field& m_shear_prod;
     Field& m_buoy_prod;
@@ -87,8 +88,42 @@ public:
     //! Update the turbulent viscosity field
     virtual void update_turbulent_viscosity(const FieldState fstate) override;
 
+    //! Update the effective thermal diffusivity field
+    virtual void update_alphaeff(Field& alphaeff) override;
+
     //! Return turbulence model coefficients
     TurbulenceModel::CoeffsDictType model_coeffs() const override;
+
+private:
+
+    Field& m_vel;
+    Field& m_temperature;
+    Field& m_turb_lscale;
+    Field& m_shear_prod;
+    Field& m_buoy_prod;
+    Field& m_nut;
+    Field& m_nuT;
+    Field& m_wind_speed;
+
+    //! Reference to ABL physics object
+    const ABL& m_abl;
+
+    //! Reference height (m) - Get from ABL wall function
+    amrex::Real m_ref_height;
+    
+    //! Gravity vector (m/s^2)
+    amrex::Vector<amrex::Real> m_gravity{{0.0, 0.0, -9.81}};
+
+    //! Reference temperature (Kelvin)
+    amrex::Real m_ref_theta{300.0};
+
+    //! All the plane averaging instances required to implement 
+    const FieldPlaneAveraging* m_pa_vel;
+
+    //! Extra variables that change every time step
+    amrex::Real m_nuT_star{1.0e10};
+    
+    
 };
 
 } // namespace turbulence
