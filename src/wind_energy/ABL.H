@@ -33,6 +33,14 @@ public:
     const ABLWallFunction& abl_wall_function() const
     { return m_abl_wall_func; }
 
+    amrex::Real utau() const { return m_abl_wall_func.utau(); }
+
+    amrex::Real log_law_height() const
+    { return m_abl_wall_func.log_law_height(); }
+
+    const FieldPlaneAveraging& abl_field_plane_averaging() const
+    { return m_pa; }
+
     void post_init_actions() override;
 
     void post_regrid_actions() override {}
