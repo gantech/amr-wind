@@ -67,7 +67,7 @@ void SecondMomentAveraging::output_line_average_ascii(
 }
 
 SecondMomentAveraging::SecondMomentAveraging(
-    FieldPlaneAveraging& pa1, FieldPlaneAveraging& pa2)
+    const FieldPlaneAveraging& pa1, const FieldPlaneAveraging& pa2)
     : m_plane_average1(pa1), m_plane_average2(pa2)
 {
 

@@ -11,7 +11,7 @@ namespace amr_wind {
 class SecondMomentAveraging
 {
 public:
-    SecondMomentAveraging(FieldPlaneAveraging& pa1, FieldPlaneAveraging& pa2);
+    SecondMomentAveraging(const FieldPlaneAveraging& pa1, const FieldPlaneAveraging& pa2);
 
     ~SecondMomentAveraging(){};
 
@@ -43,8 +43,8 @@ private:
     int m_last_updated_index = -1; /** keep track of the last time index that
                                       the operator was called */
 
-    FieldPlaneAveraging& m_plane_average1;
-    FieldPlaneAveraging& m_plane_average2;
+    const FieldPlaneAveraging& m_plane_average1;
+    const FieldPlaneAveraging& m_plane_average2;
 
 public: // public for GPU
     /** fill line storage with averages */
