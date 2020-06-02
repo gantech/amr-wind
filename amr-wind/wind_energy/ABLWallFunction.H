@@ -37,13 +37,13 @@ public:
     //! Update the mean velocity at a given timestep
     void update_umean(const FieldPlaneAveraging& pa);
 
-    void ComputePlanar();
+    void computeplanar();
 
-    void ComputeTauWall();
+    void computeusingheatflux();
 
     // const amrex::FArrayBox  instplanar() const {return m_store_xy_vel[0];}
 
-    const amrex::FArrayBox&  instplanar() const {return m_store_xy_vel;}
+    const amrex::FArrayBox&  instplanar() const {return m_store_xy_vel_temp;}
 
     amrex::Real meanwindspeed() const {return m_mean_windSpeed;}
 
@@ -65,21 +65,35 @@ private:
     int m_direction{2}; ///< Direction normal to wall
     bool m_use_fch{true}; ///< Use first cell height?
 
+    amrex::Vector<amrex::Real> m_gravity{{0.0, 0.0, -9.81}};
+
     amrex::Array<amrex::Real, 2> m_coeff_interp{{0.0, 0.0}};
 
     int m_ncells_x, m_ncells_y;
 
-    amrex::Real m_mean_windSpeed;
+    amrex::Real m_mean_windSpeed, m_mean_potTemp;
 
     // amrex::Vector<amrex::Box> m_bx_z_sample;
     // amrex::Vector<amrex::FArrayBox>  m_store_xy_vel;
     // amrex::Vector<int> m_z_sample_index;
 
     amrex::Box m_bx_z_sample;
-    amrex::FArrayBox  m_store_xy_vel;
+    amrex::FArrayBox  m_store_xy_vel_temp;
     int m_z_sample_index;
 
-    // Field& m_tau_wall;
+    bool m_abl_neutral, m_stable, m_heatflux;
+    amrex::Real m_abl_surface_flux;
+    amrex::Real m_abl_surface_rate;
+    amrex::Real m_obhukhov_length;
+    amrex::Real m_psi_m, m_psi_h;
+    amrex::Real m_abl_surface_temp;
+
+    const amrex::Real m_stable_beta = 5.0;
+    const amrex::Real m_unstable_gamma = 16.0;
+
+    const int maxIter=25;
+
+  
 
 };
 
