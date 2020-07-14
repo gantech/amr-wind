@@ -10,6 +10,7 @@
 #include "amr-wind/diffusion/diffusion.H"
 #include "amr-wind/turbulence/TurbulenceModel.H"
 #include "amr-wind/utilities/console_io.H"
+#include "amr-wind/core/field_ops.H"
 
 using namespace amrex;
 
@@ -272,6 +273,8 @@ void incflo::ApplyPredictor (bool incremental_projection)
         icns().solve(dt_diff);
     }
 
+    amr_wind::field_ops::field_lower_bound(repo().get_field("tke"), 1.0e-15);
+        
     // ************************************************************************************
     //
     // Project velocity field, update pressure
