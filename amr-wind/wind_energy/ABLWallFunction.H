@@ -53,6 +53,8 @@ public:
 
     bool is_abl_neutral() const {return m_abl_neutral;}
 
+    amrex::Real obukhov_length() const {return m_obhukhov_length;}    
+
 private:
 
     const CFDSim& m_sim;
