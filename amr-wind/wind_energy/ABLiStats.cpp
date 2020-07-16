@@ -3,6 +3,7 @@
 #include "amr-wind/utilities/io_utils.H"
 #include "amr-wind/utilities/ncutils/nc_interface.H"
 #include "amr-wind/utilities/DirectionSelector.H"
+#include "amr-wind/utilities/tensor_ops.H"
 
 #include "AMReX_ParmParse.H"
 #include "AMReX_ParallelDescriptor.H"
@@ -30,8 +31,13 @@ void ABLiStats::initialize()
         amrex::ParmParse pp("ABL");
         pp.query("stats_output_frequency", m_out_freq);
         pp.query("stats_output_format", m_out_fmt);
-        pp.query("normal_direction", m_normal_dir);
+        pp.query("kappa", m_kappa);
+        amrex::Vector<amrex::Real> gravity{{0.0, 0.0, -9.81}};
+        pp.queryarr("gravity", gravity);
+        m_gravity = utils::vec_mag(gravity.data());        
+        pp.query("normal_direction", m_normal_dir);        
         AMREX_ASSERT((0 <= m_normal_dir) && (m_normal_dir < AMREX_SPACEDIM));
+        pp.query("reference_temperature", m_ref_theta);
     }
 
     //Get normal direction and associated stuff
@@ -204,8 +210,11 @@ void ABLiStats::write_netcdf()
         auto ustar = m_abl_wall_func.utau();
         ncf.var("ustar").put(&ustar, {nt}, {1});
         double wstar = 0.0;
+        auto Q = m_abl_wall_func.heatflux_wall();
+        if (Q > 1e-10)
+            wstar = std::cbrt(m_gravity * Q * m_zi / m_ref_theta);
         ncf.var("wstar").put(&wstar, {nt}, {1});
-        double L = 1e18;
+        double L = m_abl_wall_func.obukhov_length();
         ncf.var("L").put(&L, {nt}, {1});
         ncf.var("zi").put(&m_zi, {nt}, {1});
     }
