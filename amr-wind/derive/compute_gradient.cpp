@@ -144,7 +144,147 @@ void compute_gradient(FType& gradf, const Field& field)
 }
 
 
+template<typename FType1, typename FType2>
+void compute_dir_gradient(FType1& gradf,
+                          const FType2& field,
+                          const int grad_dir)
+{
+    const auto& repo = field.repo();
+    const auto& geom_vec = repo.mesh().Geom();
+    const auto ncomp = field.num_comp();
+    
+    const int nlevels = repo.num_active_levels();
+    for (int lev=0; lev < nlevels; ++lev) {
+        const auto& geom = geom_vec[lev];
+        const auto& domain = geom.Domain();
+
+        const amrex::Real dx = geom.CellSize()[0];
+        const amrex::Real dy = geom.CellSize()[1];
+        const amrex::Real dz = geom.CellSize()[2];
+
+        const amrex::Real idx = 1.0 / dx;
+        const amrex::Real idy = 1.0 / dy;
+        const amrex::Real idz = 1.0 / dz;
+
+        for (amrex::MFIter mfi(field(lev)); mfi.isValid(); ++mfi) {
+            const auto& bx = mfi.tilebox();
+            const auto& grad_arr = gradf(lev).array(mfi);
+            const auto& field_arr = field(lev).const_array(mfi);
+
+            switch (grad_dir) {
+            case 0:
+                amrex::ParallelFor(
+                  bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                    x_gradient<StencilInterior>(
+                        i, j, k, idx, field_arr, grad_arr, ncomp);
+                });
+                break;
+            case 1:
+                amrex::ParallelFor(
+                  bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                    y_gradient<StencilInterior>(
+                        i, j, k, idy, field_arr, grad_arr, ncomp);
+                });
+                break;
+            default:
+                amrex::ParallelFor(
+                  bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                    z_gradient<StencilInterior>(
+                        i, j, k, idz, field_arr, grad_arr, ncomp);
+                });
+                break;
+            }
+
+            // TODO: Check if the following is correct for `foextrap` BC types
+            const auto& bxi = mfi.tilebox();
+            if (!geom.isPeriodic(grad_dir)) {
+                if (bxi.smallEnd(grad_dir) == domain.smallEnd(grad_dir)) {
+                    amrex::IntVect low(bxi.smallEnd());
+                    amrex::IntVect hi(bxi.bigEnd());
+                    int sm = low[grad_dir];
+                    low.setVal(grad_dir, sm);
+                    hi.setVal(grad_dir, sm);
+
+                    auto bxlo = amrex::Box(low, hi);
+
+                    switch (grad_dir) {
+                    case 0:
+                        amrex::ParallelFor(
+                          bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            x_gradient<StencilILO>(
+                                i, j, k, idz, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;
+                    case 1:
+                        amrex::ParallelFor(
+                          bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            y_gradient<StencilJLO>(
+                                i, j, k, idy, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;
+                    default:
+                        amrex::ParallelFor(
+                          bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            z_gradient<StencilKLO>(
+                                i, j, k, idz, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;
+                  }
+                }
+            
+
+                if (bxi.bigEnd(grad_dir) == domain.bigEnd(grad_dir)) {
+                    amrex::IntVect low(bxi.smallEnd());
+                    amrex::IntVect hi(bxi.bigEnd());
+                    int sm = hi[grad_dir];
+                    low.setVal(grad_dir, sm);
+                    hi.setVal(grad_dir, sm);
+
+                    auto bxhi = amrex::Box(low, hi);
+
+                    switch (grad_dir) {
+                    case 0:
+                        amrex::ParallelFor(
+                          bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            x_gradient<StencilIHI>(
+                                i, j, k, idx, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;
+                    case 1:
+                        amrex::ParallelFor(
+                          bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            y_gradient<StencilJHI>(
+                                i, j, k, idy, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;
+                    default:
+                        amrex::ParallelFor(
+                          bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            z_gradient<StencilKHI>(
+                                i, j, k, idz, field_arr,
+                                grad_arr, ncomp);
+                        });
+                        break;                    
+                  }
+                } 
+            } // if (!geom.isPeriodic)
+        }
+    }
+}
+
 template void compute_gradient<Field>(Field&, const Field&);
 template void compute_gradient<ScratchField>(ScratchField&, const Field&);
+
+template void compute_dir_gradient<Field, Field>(Field&, const Field&, const int);
+template void compute_dir_gradient<ScratchField, Field>(ScratchField&, const Field&, const int);
+
+template void compute_dir_gradient<Field, ScratchField>(Field&, const ScratchField&, const int);
+template void compute_dir_gradient<ScratchField, ScratchField>(ScratchField&, const ScratchField&, const int);
+
 
 }

@@ -42,6 +42,73 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void gradient(
 }
 
 template <typename Stencil>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void x_gradient(
+    int i,
+    int j,
+    int k,
+    amrex::Real idx,
+    amrex::Array4<amrex::Real const> const& phi,
+    amrex::Array4<amrex::Real> const& gradphi,
+    const int ncomp) noexcept
+{
+    using namespace amrex;
+
+    Real cp1, c, cm1;
+    for (int icomp=0; icomp < ncomp; icomp++) {
+        cp1 = Stencil::c00;
+        c   = Stencil::c01;
+        cm1 = Stencil::c02;
+        gradphi(i,j,k,icomp) = (cp1*phi(i+1,j,k,icomp) + c*phi(i,j,k,icomp) + cm1*phi(i-1,j,k,icomp)) * idx;
+    }
+
+}
+
+template <typename Stencil>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void y_gradient(
+    int i,
+    int j,
+    int k,
+    amrex::Real idy,
+    amrex::Array4<amrex::Real const> const& phi,
+    amrex::Array4<amrex::Real> const& gradphi,
+    const int ncomp) noexcept
+{
+    using namespace amrex;
+
+    Real cp1, c, cm1;
+    for (int icomp=0; icomp < ncomp; icomp++) {
+        cp1 = Stencil::c10;
+        c   = Stencil::c11;
+        cm1 = Stencil::c12;
+        gradphi(i,j,k,icomp) = (cp1*phi(i,j+1,k,icomp) + c*phi(i,j,k,icomp) + cm1*phi(i,j-1,k,icomp)) * idy;
+    }
+
+}
+
+template <typename Stencil>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void z_gradient(
+    int i,
+    int j,
+    int k,
+    amrex::Real idz,
+    amrex::Array4<amrex::Real const> const& phi,
+    amrex::Array4<amrex::Real> const& gradphi,
+    const int ncomp) noexcept
+{
+    using namespace amrex;
+
+    Real cp1, c, cm1;
+    for (int icomp=0; icomp < ncomp; icomp++) {
+        cp1 = Stencil::c20;
+        c   = Stencil::c21;
+        cm1 = Stencil::c22;
+        gradphi(i,j,k,icomp) = (cp1*phi(i,j,k+1,icomp) + c*phi(i,j,k,icomp) + cm1*phi(i,j,k-1,icomp)) * idz;
+    }
+
+}
+
+
+template <typename Stencil>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE void laplacian(
     int i,
     int j,
@@ -256,6 +323,19 @@ void compute_fluct_strainrate( FType& field,
  */
 template<typename FType>
 void compute_gradient(FType& gradf, const Field& field);
+
+/** Compute directional gradient of a scalar or vector field
+ *  \ingroup field_ops
+ *
+ *  \f$\nabla \mathbf{f}\f \cdot \overhat{n}_{\textrm{dir}}$
+ *
+ *  \tparam FType Field or ScratchField
+ *  \param gradf [out] The gradient of the input field in direction `dir`
+ *  \param field [in] Field on which gradient is to be computed
+ *  \param dir [in] Cartesian direction to compute gradient
+ */
+template<typename FType1, typename FType2>
+void compute_dir_gradient(FType1& gradf, const FType2& field, const int dir);
 
 /** Compute laplacian of a scalar or vector field
  *  \ingroup field_ops
