@@ -158,7 +158,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real strainrate(
 
 
 template <typename Stencil>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real strainrate(
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real fluct_strainrate(
     int i,
     int j,
     int k,
@@ -166,18 +166,19 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real strainrate(
     amrex::Real idy,
     amrex::Real idz,
     amrex::Array4<amrex::Real const> const& vel,
-    const FieldPlaneAveraging& pa,
-    const int pa_dir) noexcept
+    const VelPlaneAveraging& pa,
+    const int pa_dir,
+    const int pa_dir_idx) noexcept
 {
     using namespace amrex;
 
     //Get the derivative of the average velocity along `pa_dir`
-    amrex::Vector<amrex::Real> avg_deriv{{0.0,0.0,0.0,
-                                          0.0,0.0,0.0,
-                                          0.0,0.0,0.0}};
+    amrex::GpuArray<amrex::Real, 9> avg_deriv{0.0,0.0,0.0,
+                                              0.0,0.0,0.0,
+                                              0.0,0.0,0.0};
     for (int idim = 0; idim < AMREX_SPACEDIM; idim++)
         avg_deriv[pa_dir*AMREX_SPACEDIM + idim] =
-            pa.line_derivative_of_average_cell(pa_dir, idim);
+            pa.line_derivative_of_average_cell(pa_dir_idx, idim);
     
     Real cp1, c, cm1;
 
@@ -240,7 +241,8 @@ void compute_strainrate(FType& field, const Field& velocity);
 template<typename FType, typename IndexSelector>
 void compute_fluct_strainrate( FType& field,
                                const Field& vel,
-                               const FieldPlaneAveraging& pa,
+                               const VelPlaneAveraging& pa,
+                               const int norm_dir,
                                const IndexSelector& pa_dir);
 
 /** Compute gradient of a scalar or vector field

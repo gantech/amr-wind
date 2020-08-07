@@ -148,7 +148,8 @@ void compute_strainrate(FType& field, const Field& vel)
 template<typename FType, typename IndexSelector>
 void compute_fluct_strainrate( FType& field,
                                const Field& vel,
-                               const FieldPlaneAveraging& pa,
+                               const VelPlaneAveraging& pa,
+                               const int norm_dir,
                                const IndexSelector& pa_dir)
 {
     const auto& repo = vel.repo();
@@ -168,14 +169,14 @@ void compute_fluct_strainrate( FType& field,
         const amrex::Real idz = 1.0 / dz;
 
         for (amrex::MFIter mfi(field(lev)); mfi.isValid(); ++mfi) {
-            const auto& bx = mfi.growntilebox(field.num_grow());
+            const auto& bx = mfi.tilebox();
             const auto& sr_arr = field(lev).array(mfi);
             const auto& vel_arr = vel(lev).const_array(mfi);
 
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                    sr_arr(i, j, k) = strainrate<StencilInterior>(
-                        i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                    sr_arr(i, j, k) = fluct_strainrate<StencilInterior>(
+                        i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                 });
 
             // TODO: Check if the following is correct for `foextrap` BC types
@@ -189,12 +190,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxlo = amrex::Box(low, hi).grow({0, 1, 1});
+                    auto bxlo = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilILO>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilILO>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
 
@@ -205,12 +206,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxhi = amrex::Box(low, hi).grow({0, 1, 1});
+                    auto bxhi = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilIHI>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilIHI>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
             } // if (!geom.isPeriodic)
@@ -224,12 +225,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxlo = amrex::Box(low, hi).grow({1, 0, 1});
+                    auto bxlo = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilJLO>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilJLO>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
 
@@ -240,12 +241,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxhi = amrex::Box(low, hi).grow({1, 0, 1});
+                    auto bxhi = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilJHI>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilJHI>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
             } // if (!geom.isPeriodic)
@@ -259,12 +260,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxlo = amrex::Box(low, hi).grow({1, 1, 0});
+                    auto bxlo = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxlo, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilKLO>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilKLO>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
 
@@ -275,12 +276,12 @@ void compute_fluct_strainrate( FType& field,
                     low.setVal(idim, sm);
                     hi.setVal(idim, sm);
 
-                    auto bxhi = amrex::Box(low, hi).grow({1, 1, 0});
+                    auto bxhi = amrex::Box(low, hi);
 
                     amrex::ParallelFor(
                         bxhi, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                            sr_arr(i, j, k) = strainrate<StencilKHI>(
-                                i, j, k, idx, idy, idz, vel_arr, pa, pa_dir(i,j,k));
+                            sr_arr(i, j, k) = fluct_strainrate<StencilKHI>(
+                                i, j, k, idx, idy, idz, vel_arr, pa, norm_dir, pa_dir(i,j,k));
                         });
                 }
             } // if (!geom.isPeriodic)
@@ -290,11 +291,11 @@ void compute_fluct_strainrate( FType& field,
 
 template void compute_strainrate<Field>(Field&, const Field&);
 template void compute_strainrate<ScratchField>(ScratchField&, const Field&);
-template void compute_fluct_strainrate<Field,XDir>(Field&, const Field&, const FieldPlaneAveraging&, const XDir& );
-template void compute_fluct_strainrate<Field,YDir>(Field&, const Field&, const FieldPlaneAveraging&, const YDir& );
-template void compute_fluct_strainrate<Field,ZDir>(Field&, const Field&, const FieldPlaneAveraging&, const ZDir& );
-template void compute_fluct_strainrate<ScratchField,XDir>(ScratchField&, const Field&, const FieldPlaneAveraging&, const XDir&);
-template void compute_fluct_strainrate<ScratchField,YDir>(ScratchField&, const Field&, const FieldPlaneAveraging&, const YDir&);
-template void compute_fluct_strainrate<ScratchField,ZDir>(ScratchField&, const Field&, const FieldPlaneAveraging&, const ZDir&);
+template void compute_fluct_strainrate<Field,XDir>(Field&, const Field&, const VelPlaneAveraging&, const int, const XDir& );
+template void compute_fluct_strainrate<Field,YDir>(Field&, const Field&, const VelPlaneAveraging&, const int, const YDir& );
+template void compute_fluct_strainrate<Field,ZDir>(Field&, const Field&, const VelPlaneAveraging&, const int, const ZDir& );
+template void compute_fluct_strainrate<ScratchField,XDir>(ScratchField&, const Field&, const VelPlaneAveraging&, const int, const XDir&);
+template void compute_fluct_strainrate<ScratchField,YDir>(ScratchField&, const Field&, const VelPlaneAveraging&, const int, const YDir&);
+template void compute_fluct_strainrate<ScratchField,ZDir>(ScratchField&, const Field&, const VelPlaneAveraging&, const int, const ZDir&);
 
 }
