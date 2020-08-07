@@ -5,4 +5,5 @@ target_sources(${amr_wind_lib_name} PRIVATE
   DensityBuoyancy.cpp
   CoriolisForcing.cpp
   BodyForce.cpp
+  S94MeanStressDiv.cpp
   )

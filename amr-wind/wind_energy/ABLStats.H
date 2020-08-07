@@ -47,7 +47,16 @@ public:
         const h2_dir& h2Sel);
 
     //! Return vel plane averaging instance
-    const VelPlaneAveraging& vel_plane_averaging() { return m_pa_vel;} ;
+    const VelPlaneAveraging& vel_plane_averaging() const
+    { return m_pa_vel;}
+
+    //! Return mu_turb plane averaging instance
+    const FieldPlaneAveraging& muturb_plane_averaging() const
+    { return m_pa_mueff;}
+
+    //! Return resolved velocity variance plane averaging instance
+    const SecondMomentAveraging& vel_uu_plane_averaging() const
+    { return m_pa_uu;}
     
 
 protected:

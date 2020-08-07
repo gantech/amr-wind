@@ -11,12 +11,25 @@
 template<int Index>
 struct DirectionSelector
 {
+    static constexpr int dir = Index;
     int operator()(int i, int j, int k) const;
 };
 
-template<> struct DirectionSelector<0>{ int operator()(int i, int  , int  ) const { return i; };};
-template<> struct DirectionSelector<1>{ int operator()(int  , int j, int  ) const { return j; };};
-template<> struct DirectionSelector<2>{ int operator()(int  , int  , int k) const { return k; };};
+template<> struct DirectionSelector<0>{
+    static constexpr int dir = 0;
+    int operator()(int i, int  , int  ) const
+        { return i; }
+};
+template<> struct DirectionSelector<1>{
+    static constexpr int dir = 1;
+    int operator()(int  , int j, int  ) const
+        { return j; }
+};
+template<> struct DirectionSelector<2>{
+    static constexpr int dir = 2;
+    int operator()(int  , int  , int k) const
+        { return k; }
+};
 
 using XDir = DirectionSelector<0>;
 using YDir = DirectionSelector<1>;
