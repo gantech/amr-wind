@@ -60,6 +60,9 @@ public:
     const ABLWallFunction& abl_wall_function() const
     { return m_abl_wall_func; }
 
+    const ABLStats& abl_stats() const
+        { return *m_stats; }
+
     void post_init_actions() override;
 
     void post_regrid_actions() override {}
