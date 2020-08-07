@@ -1,0 +1,4 @@
+<map id="amr_wind::FieldBCIface" name="amr_wind::FieldBCIface">
+<area shape="rect" id="node2" href="$classamr__wind_1_1_a_b_l_vel_wall_func.html" title="Applies a shear&#45;stress value at the domain boundary. " alt="" coords="5,80,191,107"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1_fixed_gradient_b_c.html" title="Applies a non&#45;zero gradient at the domain boundaryUsed with the inhomogeneous Neumann linear solver B..." alt="" coords="215,80,402,107"/>
+</map>

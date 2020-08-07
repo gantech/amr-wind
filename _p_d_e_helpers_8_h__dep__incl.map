@@ -1,0 +1,27 @@
+<map id="PDEHelpers.H" name="PDEHelpers.H">
+<area shape="rect" id="node2" href="$_p_d_e_ops_8_h.html" title="PDEOps.H" alt="" coords="639,80,727,107"/>
+<area shape="rect" id="node5" href="$icns__ops_8_h.html" title="icns_ops.H" alt="" coords="830,379,918,405"/>
+<area shape="rect" id="node16" href="$density_8_h.html" title="density.H" alt="" coords="5,304,84,331"/>
+<area shape="rect" id="node18" href="$icns_8_h.html" title="icns.H" alt="" coords="1036,304,1096,331"/>
+<area shape="rect" id="node19" href="$icns__diffusion_8_h.html" title="icns_diffusion.H" alt="" coords="1113,379,1229,405"/>
+<area shape="rect" id="node20" href="$_s_d_r_8_h.html" title="SDR.H" alt="" coords="108,304,173,331"/>
+<area shape="rect" id="node21" href="$temperature_8_h.html" title="temperature.H" alt="" coords="197,304,303,331"/>
+<area shape="rect" id="node22" href="$_t_k_e_8_h.html" title="TKE.H" alt="" coords="723,304,785,331"/>
+<area shape="rect" id="node24" href="$_diffusion_ops_8_h.html" title="DiffusionOps.H" alt="" coords="822,155,934,181"/>
+<area shape="rect" id="node26" href="$_p_d_e_base_8cpp.html" title="PDEBase.cpp" alt="" coords="1273,80,1379,107"/>
+<area shape="rect" id="node3" href="$_adv_op___godunov_8_h.html" title="AdvOp_Godunov.H" alt="" coords="564,304,699,331"/>
+<area shape="rect" id="node11" href="$_adv_op___m_o_l_8_h.html" title="AdvOp_MOL.H" alt="" coords="327,304,437,331"/>
+<area shape="rect" id="node12" href="$_b_c_ops_8_h.html" title="BCOps.H" alt="" coords="461,304,540,331"/>
+<area shape="rect" id="node14" href="$_comp_r_h_s_ops_8_h.html" title="CompRHSOps.H" alt="" coords="521,155,645,181"/>
+<area shape="rect" id="node15" href="$_p_d_e_8_h.html" title="PDE.H" alt="" coords="511,229,575,256"/>
+<area shape="rect" id="node4" href="$density_8cpp.html" title="density.cpp" alt="" coords="165,453,255,480"/>
+<area shape="rect" id="node8" href="$_s_d_r_8cpp.html" title="SDR.cpp" alt="" coords="248,379,324,405"/>
+<area shape="rect" id="node9" href="$temperature_8cpp.html" title="temperature.cpp" alt="" coords="348,379,464,405"/>
+<area shape="rect" id="node10" href="$_t_k_e_8cpp.html" title="TKE.cpp" alt="" coords="540,379,613,405"/>
+<area shape="rect" id="node6" href="$icns_8cpp.html" title="icns.cpp" alt="" coords="997,453,1068,480"/>
+<area shape="rect" id="node7" href="$icns__ops_8cpp.html" title="icns_ops.cpp" alt="" coords="825,453,923,480"/>
+<area shape="rect" id="node13" href="$icns__bcop_8_h.html" title="icns_bcop.H" alt="" coords="943,379,1037,405"/>
+<area shape="rect" id="node17" href="$density__ops_8_h.html" title="density_ops.H" alt="" coords="66,379,173,405"/>
+<area shape="rect" id="node23" href="$_one_eq_ksgs_8cpp.html" title="OneEqKsgs.cpp" alt="" coords="689,379,806,405"/>
+<area shape="rect" id="node25" href="$_diffusion_ops_8cpp.html" title="DiffusionOps.cpp" alt="" coords="873,229,995,256"/>
+</map>

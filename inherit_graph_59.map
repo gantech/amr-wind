@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classamr__wind_1_1pde_1_1icns_1_1_a_b_l_forcing.html" title="Forcing term to drive the ABL profile to a desired state. " alt="" coords="133,5,271,47"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1pde_1_1icns_1_1_body_force.html" title="Apply a user&#45;defined body force as a source termThe implementation can apply either a constant source..." alt="" coords="133,71,271,112"/>
+<area shape="rect" id="node4" href="$classamr__wind_1_1pde_1_1icns_1_1_boussinesq_buoyancy.html" title="Boussinesq bouyancy source term. " alt="" coords="124,136,280,177"/>
+<area shape="rect" id="node5" href="$classamr__wind_1_1pde_1_1icns_1_1_coriolis_forcing.html" title="Account for Coriolis forcing due to earth&#39;s rotation. " alt="" coords="133,201,271,243"/>
+<area shape="rect" id="node6" href="$classamr__wind_1_1pde_1_1icns_1_1_density_buoyancy.html" title="Buoyancy term from density variations. " alt="" coords="133,267,271,308"/>
+<area shape="rect" id="node7" href="$classamr__wind_1_1pde_1_1icns_1_1_geostrophic_forcing.html" title="Apply source term equivalent to drive the flow to match given geostrophic wind. " alt="" coords="131,332,273,373"/>
+<area shape="rect" id="node8" href="$classamr__wind_1_1pde_1_1icns_1_1mms_1_1_m_m_s_forcing.html" title="amr_wind::pde::icns\l::mms::MMSForcing" alt="" coords="131,397,273,439"/>
+</map>

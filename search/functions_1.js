@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['base_5fidentifier',['base_identifier',['../classamr__wind_1_1_physics.html#ad04724ea4e2b92be9648aff06378ceee',1,'amr_wind::Physics::base_identifier()'],['../classamr__wind_1_1pde_1_1_density_source.html#a0eff394bfcce61f7936726e829799394',1,'amr_wind::pde::DensitySource::base_identifier()'],['../classamr__wind_1_1pde_1_1_momentum_source.html#acd915d05565a2dfa2d6a186bbe8600ef',1,'amr_wind::pde::MomentumSource::base_identifier()'],['../classamr__wind_1_1pde_1_1_p_d_e_base.html#af89e30ba604f3b3a51ac0c19bcc500d9',1,'amr_wind::pde::PDEBase::base_identifier()'],['../classamr__wind_1_1pde_1_1_s_d_r_source.html#af2aef83261eac2c3bc4720ff5dc552a6',1,'amr_wind::pde::SDRSource::base_identifier()'],['../classamr__wind_1_1pde_1_1_source_term.html#ae127c0f9adfc585aea19c91961a6cce3',1,'amr_wind::pde::SourceTerm::base_identifier()'],['../classamr__wind_1_1pde_1_1_temperature_source.html#af61bedf6ad81ff510a1dc97401e05e14',1,'amr_wind::pde::TemperatureSource::base_identifier()'],['../classamr__wind_1_1pde_1_1_t_k_e_source.html#aef5bd51d469431a5be135bcd5316fbb0',1,'amr_wind::pde::TKESource::base_identifier()'],['../classamr__wind_1_1_overset_manager.html#a8a0321b1fe6670651b11bbe5e07ced4f',1,'amr_wind::OversetManager::base_identifier()'],['../classamr__wind_1_1turbulence_1_1_turbulence_model.html#a3757fe2e716a1db20876389ef79a2f32',1,'amr_wind::turbulence::TurbulenceModel::base_identifier()'],['../classamr__wind_1_1_post_process_base.html#a4bc4718e7ff00a4cb827331fad0907ba',1,'amr_wind::PostProcessBase::base_identifier()'],['../classamr__wind_1_1sampling_1_1_sampler_base.html#a638a0b0b0337b65fb40e3f6faa93aeb7',1,'amr_wind::sampling::SamplerBase::base_identifier()']]],
+  ['base_5fname',['base_name',['../classamr__wind_1_1_field.html#ad41aa05abd6ed852f56b2a87bf3c1761',1,'amr_wind::Field']]],
+  ['bc_5finitialized',['bc_initialized',['../structamr__wind_1_1_field_info.html#a97dbad8e0bdd612fda55b01f6539a52e',1,'amr_wind::FieldInfo::bc_initialized()'],['../classamr__wind_1_1_field.html#abeb5fec1ed460309c8c558edacfc759a',1,'amr_wind::Field::bc_initialized()']]],
+  ['bc_5ftype',['bc_type',['../classamr__wind_1_1_field.html#a92eb6b1c97b53698913cecd09c5379af',1,'amr_wind::Field']]],
+  ['bc_5fvalues',['bc_values',['../classamr__wind_1_1_field.html#ad0ec14405f133cd516e9520c120e8d9b',1,'amr_wind::Field']]],
+  ['bc_5fvalues_5fdevice',['bc_values_device',['../classamr__wind_1_1_field.html#aa2b4190e447117f8fa4254c6a32ab51b',1,'amr_wind::Field']]],
+  ['bcfillpatchextrap',['BCFillPatchExtrap',['../classamr__wind_1_1_b_c_fill_patch_extrap.html#ab655871c5ad513f4acec18027d8fdfd0',1,'amr_wind::BCFillPatchExtrap']]],
+  ['bciface',['BCIface',['../classamr__wind_1_1_b_c_iface.html#a9c4dcba9672302d7bc123f98f6919cf6',1,'amr_wind::BCIface']]],
+  ['bcop',['BCOp',['../structamr__wind_1_1pde_1_1_b_c_op_3_01_p_d_e_00_01typename_01std_1_1enable__if_3_01std_1_1is__ba09d3e606cd77a31531d65648a3482008.html#a6dbcd5fa3d6e5e5dff92fe640da00f7f',1,'amr_wind::pde::BCOp&lt; PDE, typename std::enable_if&lt; std::is_base_of&lt; ScalarTransport, PDE &gt;::value &gt;::type &gt;::BCOp()'],['../structamr__wind_1_1pde_1_1_b_c_op_3_01_i_c_n_s_01_4.html#ab69c2778cfcb0bf70e4999d5d21d0869',1,'amr_wind::pde::BCOp&lt; ICNS &gt;::BCOp()']]],
+  ['bcpressure',['BCPressure',['../classamr__wind_1_1_b_c_pressure.html#a23ede706b51b2be975c6217734a0f97f',1,'amr_wind::BCPressure']]],
+  ['bcrec',['bcrec',['../classamr__wind_1_1_field.html#a74b9e7f8b02171873a9fde07fc2eb128',1,'amr_wind::Field']]],
+  ['bcrec_5fdevice',['bcrec_device',['../classamr__wind_1_1_field.html#ac7672f96301cc4ef3ea50e69d0796c5d',1,'amr_wind::Field']]],
+  ['bcscalar',['BCScalar',['../classamr__wind_1_1_b_c_scalar.html#a86e1a8745d0886eb676e235b7750eab2',1,'amr_wind::BCScalar']]],
+  ['bcsrcterm',['BCSrcTerm',['../classamr__wind_1_1_b_c_src_term.html#acaae2b4fe53458a3bda6e0889de075bf',1,'amr_wind::BCSrcTerm']]],
+  ['bcvelocity',['BCVelocity',['../classamr__wind_1_1_b_c_velocity.html#a33929dacaaa75146795d37c291ba9223',1,'amr_wind::BCVelocity']]],
+  ['bodyforce',['BodyForce',['../classamr__wind_1_1pde_1_1icns_1_1_body_force.html#a9eb929a40c4855eec58d587db8328daf',1,'amr_wind::pde::icns::BodyForce']]],
+  ['boussinesqbubble',['BoussinesqBubble',['../classamr__wind_1_1_boussinesq_bubble.html#a31a60338a2f99ceefdcc47cb4fdd9f53',1,'amr_wind::BoussinesqBubble']]],
+  ['boussinesqbubblefieldinit',['BoussinesqBubbleFieldInit',['../classamr__wind_1_1_boussinesq_bubble_field_init.html#ad7def878e34a3d782be96914552247df',1,'amr_wind::BoussinesqBubbleFieldInit']]],
+  ['boussinesqbuoyancy',['BoussinesqBuoyancy',['../classamr__wind_1_1pde_1_1icns_1_1_boussinesq_buoyancy.html#ac5fb566391484ac3313cdde5a81c0919',1,'amr_wind::pde::icns::BoussinesqBuoyancy']]],
+  ['boxarray_5fvec',['boxarray_vec',['../classamr__wind_1_1_cart_box_refinement.html#a29f731a5196b8c2c7c2fb13054c0a6c7',1,'amr_wind::CartBoxRefinement']]],
+  ['buildinfogetbuilddate',['buildInfoGetBuildDate',['../namespaceamrex.html#a8f794ff24efbc4b60058492d1a073c78',1,'amrex']]],
+  ['buildinfogetcomp',['buildInfoGetComp',['../namespaceamrex.html#a9d270ec83f99e836cca454cac4e0af5e',1,'amrex']]],
+  ['buildinfogetcompversion',['buildInfoGetCompVersion',['../namespaceamrex.html#aab3ca155f0d0a6d198817df9c35352f8',1,'amrex']]],
+  ['buildinfogetgithash',['buildInfoGetGitHash',['../namespaceamrex.html#a215b1ed21dbb8f453201c6dc72ab3d1c',1,'amrex']]]
+];

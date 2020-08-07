@@ -1,0 +1,4 @@
+<map id="amr_wind::SecondMomentAveraging" name="amr_wind::SecondMomentAveraging">
+<area shape="rect" id="node2" href="$classamr__wind_1_1_f_plane_averaging.html" title="Output average of a field on planes normal to a given directionThe user can choose a direction (x..." alt="" coords="30,95,215,136"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1_sim_time.html" title="Time manager for simulations. " alt="" coords="53,5,192,32"/>
+</map>

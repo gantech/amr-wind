@@ -1,0 +1,4 @@
+<map id="amr_wind::VelPlaneAveraging" name="amr_wind::VelPlaneAveraging">
+<area shape="rect" id="node2" href="$classamr__wind_1_1_f_plane_averaging.html" title="Output average of a field on planes normal to a given directionThe user can choose a direction (x..." alt="" coords="33,95,174,121"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1_sim_time.html" title="Time manager for simulations. " alt="" coords="34,5,173,32"/>
+</map>

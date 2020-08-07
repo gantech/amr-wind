@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classamr__wind_1_1sampling_1_1_line_sampler.html" title="Sample data along a lineDefines probes along a line defined by start and end coordinates and divides ..." alt="" coords="124,5,263,47"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1sampling_1_1_plane_sampler.html" title="Sample data on uniform gridsDefines probe locations on a two&#45;dimensional plane defined by two vectors..." alt="" coords="124,71,263,112"/>
+<area shape="rect" id="node4" href="$classamr__wind_1_1sampling_1_1_probe_sampler.html" title="Sample data on a cloud of pointsReads a cloud of point locations from a text file and samples data on..." alt="" coords="124,136,263,177"/>
+</map>

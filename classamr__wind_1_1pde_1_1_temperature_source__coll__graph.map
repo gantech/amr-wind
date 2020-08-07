@@ -1,0 +1,4 @@
+<map id="amr_wind::pde::TemperatureSource" name="amr_wind::pde::TemperatureSource">
+<area shape="rect" id="node2" href="$structamr__wind_1_1_factory.html" title="amr_wind::Factory\&lt;\l TemperatureSource,\l const CFDSim &amp;\&gt;" alt="" coords="27,124,171,180"/>
+<area shape="rect" id="node3" href="$structamr__wind_1_1_factory.html" title="Runtime selection of options based on string keyword lookupFactory provides an automated way to regis..." alt="" coords="30,5,169,47"/>
+</map>

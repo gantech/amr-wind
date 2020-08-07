@@ -1,0 +1,10 @@
+<map id="amr_wind::turbulence::TurbModelBase&lt; Transport &gt;" name="amr_wind::turbulence::TurbModelBase&lt; Transport &gt;">
+<area shape="rect" id="node6" href="$classamr__wind_1_1turbulence_1_1_one_eq_ksgs.html" title="Base class for 1&#45;Equation subgrid scale TKE turbulence model. " alt="" coords="1235,37,1414,79"/>
+<area shape="rect" id="node9" href="$classamr__wind_1_1turbulence_1_1_smagorinsky.html" title="Smagorinsky LES Model. " alt="" coords="1232,103,1417,144"/>
+<area shape="rect" id="node2" href="$classamr__wind_1_1turbulence_1_1_turb_model.html" title="Turbulence model with a specific transport modelThis templated class allows turbulence model to be sp..." alt="" coords="763,87,933,128"/>
+<area shape="rect" id="node3" href="$classamr__wind_1_1turbulence_1_1_turbulence_model.html" title="Abstract representation of a turbulence modelThis class is an abstract representation of a turbulence..." alt="" coords="567,87,713,128"/>
+<area shape="rect" id="node4" href="$structamr__wind_1_1_factory.html" title="amr_wind::Factory\&lt;\l TurbulenceModel, CFDSim &amp;\&gt;" alt="" coords="312,87,517,128"/>
+<area shape="rect" id="node5" href="$structamr__wind_1_1_factory.html" title="Runtime selection of options based on string keyword lookupFactory provides an automated way to regis..." alt="" coords="5,87,144,128"/>
+<area shape="rect" id="node7" href="$classamr__wind_1_1turbulence_1_1_one_eq_ksgs_m84.html" title="amr_wind::turbulence\l::OneEqKsgsM84\&lt; Transport \&gt;" alt="" coords="1467,5,1671,47"/>
+<area shape="rect" id="node8" href="$classamr__wind_1_1turbulence_1_1_one_eq_ksgs_s94.html" title="amr_wind::turbulence\l::OneEqKsgsS94\&lt; Transport \&gt;" alt="" coords="1467,71,1670,112"/>
+</map>
