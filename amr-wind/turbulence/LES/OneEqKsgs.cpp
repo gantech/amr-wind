@@ -180,6 +180,20 @@ void OneEqKsgsM84<Transport>::update_alphaeff(Field& alphaeff)
 }
 
 template <typename Transport>
+void OneEqKsgsM84<Transport>::update_scalar_diff(Field& scalar_diff, const std::string& name )
+{
+    BL_PROFILE("amr-wind::" + this->identifier() + "::update_scalar_diff")
+
+    if (name == "tke") {
+        field_ops::saxpy(
+            scalar_diff, 2.0, this->mu_turb(), 0, 0, scalar_diff.num_comp(), scalar_diff.num_grow());    
+    } else {
+        std::cerr << "Unknown scalar to compute diffusivity" << std::endl;
+    }
+}
+
+
+template <typename Transport>
 OneEqKsgsS94<Transport>::OneEqKsgsS94(CFDSim& sim)
     : OneEqKsgs<Transport>(sim)
     , m_vel(sim.repo().get_field("velocity"))
@@ -187,7 +201,9 @@ OneEqKsgsS94<Transport>::OneEqKsgsS94(CFDSim& sim)
     , m_turb_lscale(sim.repo().declare_field("turb_lscale",1, 0, 1))
     , m_shear_prod(sim.repo().declare_field("shear_prod",1, 0, 1))
     , m_buoy_prod(sim.repo().declare_field("buoy_prod",1, 0, 1))
+    , m_gamma(sim.repo().declare_field("gamma",1,1,1))
     , m_nuT(sim.repo().declare_field("nuT",1, 1, 1))
+    , m_gradT(sim.repo().declare_field("gradT",3,1,1))
     , m_mean_stress_div(sim.repo().declare_field("s94_mean_stress_div",3,0,1))
     , m_abl(sim.physics_manager().get<amr_wind::ABL>())
     , m_ref_height(m_abl.abl_wall_function().log_law_height())
@@ -215,6 +231,11 @@ OneEqKsgsS94<Transport>::OneEqKsgsS94(CFDSim& sim)
         pp.queryarr("gravity", m_gravity);
     }
 
+    m_buoy_prod.set_default_fillpatch_bc(this->m_sim.time());
+    m_shear_prod.set_default_fillpatch_bc(this->m_sim.time());
+    m_gamma.set_default_fillpatch_bc(this->m_sim.time());
+    m_gradT.set_default_fillpatch_bc(this->m_sim.time());
+    
     // TKE source term to be added to PDE
     turb_utils::inject_turbulence_src_terms(pde::ICNS::pde_name(), {"MeanTurbDiffS94Src"});
     turb_utils::inject_turbulence_src_terms(pde::TKE::pde_name(), {"KsgsS94Src"});
@@ -238,22 +259,18 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
     BL_PROFILE("amr-wind::" + this->identifier() + "::update_turbulent_viscosity")
 
     /* Steps
-       1. Compute strain rate
-       2. Compute average strain rate
-       3. Get average velocity and its gradient
-       4. Compute S'
-       5. Compute gamma, nut, shear production, buoyancy production
-       term. Store nut * gamma in mu_turb and just nut in nut for
-       later use
-       7. Compute average of <nut gamma>
-       8. Compute nuTstar
-       9. Compute nuT
+       1. Compute fluctuating strain rate
+       2. Compute gamma, nut, shear production, buoyancy production
+       term. Store nut * gamma in mu_turb 
+       3. Compute average of <nut gamma>
+       4. Compute nuTstar
+       5. Compute nuT and mean stress divergence
     */
 
     const auto& abl_stats = m_abl.abl_stats(); //Get ABLStats object
         
-    auto gradT = (this->m_sim.repo()).create_scratch_field(3,0)  ;
-    compute_gradient(*gradT, m_temperature);
+    //auto gradT = (this->m_sim.repo()).create_scratch_field(3,1)  ;
+    compute_gradient(m_gradT, m_temperature);
 
     auto& vel = this->m_vel.state(fstate);
     //Compute fluctuating strain rate
@@ -283,12 +300,12 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
             const auto& bx = mfi.tilebox();
             const auto& mu_arr = mu_turb(lev).array(mfi);
             const auto& rho_arr = den(lev).const_array(mfi);
-            const auto& gradT_arr = (*gradT)(lev).array(mfi);
+            const auto& gamma_arr = (this->m_gamma)(lev).array(mfi);
+            const auto& gradT_arr = (this->m_gradT)(lev).array(mfi);
             const auto& tlscale_arr = (this->m_turb_lscale)(lev).array(mfi);
             const auto& tke_arr = (*this->m_tke)(lev).array(mfi);
             const auto& buoy_prod_arr = (this->m_buoy_prod)(lev).array(mfi);
             const auto& shear_prod_arr = (this->m_shear_prod)(lev).array(mfi);
-            const auto& vel_arr = vel(lev).const_array(mfi);
             
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -312,11 +329,12 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
 
               amrex::Real umeanz = pa_vel.line_derivative_of_average_cell(k, 0);
               amrex::Real vmeanz = pa_vel.line_derivative_of_average_cell(k, 1);
-              amrex::Real gamma = 1.0;
-                  //shear_prod_arr(i,j,k) / (shear_prod_arr(i,j,k)
-                  //+ std::sqrt(umeanz*umeanz + vmeanz*vmeanz));
+              gamma_arr(i,j,k) = amrex::max(1.0, shear_prod_arr(i,j,k)
+                                          / (shear_prod_arr(i,j,k)
+                                             + std::sqrt(umeanz*umeanz + vmeanz*vmeanz)
+                                             + 1.0e-15) );
 
-              mu_arr(i,j,k) = mut * gamma;
+              mu_arr(i,j,k) = mut * gamma_arr(i,j,k);
 
               shear_prod_arr(i,j,k) *=
                   shear_prod_arr(i,j,k) * mu_arr(i,j,k);
@@ -325,11 +343,14 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
         }
     }
 
+    (this->mu_turb()).fillpatch(this->m_sim.time().current_time());
+    (this->m_buoy_prod).fillpatch(this->m_sim.time().current_time());
+    (this->m_gamma).fillpatch(this->m_sim.time().current_time());
+    (this->m_shear_prod).fillpatch(this->m_sim.time().current_time());
     m_pa_muturb();
     
     amrex::Real utau = m_abl.abl_wall_function().utau();
     const auto& dx = geom_vec[0].CellSizeArray();
-    const auto& problo = geom_vec[0].ProbLoArray();
     int ref_height_index = std::nearbyint(m_ref_height/dx[2] - 0.5);
     //TODO: Fix this to work with grid refinement
     amrex::Real dusdz_wf =
@@ -342,18 +363,10 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
         - m_pa_muturb.line_average_interpolated(m_ref_height, 0);
     
     for (int lev=0; lev < nlevels; ++lev) {
-        const auto& geom = geom_vec[lev];
-
-        const amrex::Real dx = geom.CellSize()[0];
-        const amrex::Real dy = geom.CellSize()[1];
-        const amrex::Real dz = geom.CellSize()[2];
-        const amrex::Real ds = std::cbrt(dx * dy * dz);
-
         for (amrex::MFIter mfi(mu_turb(lev)); mfi.isValid(); ++mfi) {
             const auto& bx = mfi.tilebox();
-            const auto& nut_arr = mu_turb(lev).array(mfi);
             const auto& nuT_arr = m_nuT(lev).array(mfi);
-            const auto& gradT_arr = (*gradT)(lev).array(mfi); //Reuse
+            const auto& gradT_arr = (this->m_gradT)(lev).array(mfi); //Reuse
             
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -370,7 +383,10 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
             }); 
         }
     }
-    compute_dir_gradient(m_mean_stress_div, *gradT, 2);
+
+    (this->m_gradT).fillpatch(this->m_sim.time().current_time());
+    (this->m_mean_stress_div).setVal(0.0);
+    compute_dir_gradient((this->m_mean_stress_div), (this->m_gradT), 2);
 }
 
 template <typename Transport>
@@ -388,7 +404,6 @@ void OneEqKsgsS94<Transport>::update_alphaeff(Field& alphaeff)
     const int nlevels = repo.num_active_levels();
     for (int lev=0; lev < nlevels; ++lev) {
         const auto& geom = geom_vec[lev];
-
         const amrex::Real dx = geom.CellSize()[0];
         const amrex::Real dy = geom.CellSize()[1];
         const amrex::Real dz = geom.CellSize()[2];
@@ -412,6 +427,40 @@ void OneEqKsgsS94<Transport>::update_alphaeff(Field& alphaeff)
     }
     
 }
+
+template <typename Transport>
+void OneEqKsgsS94<Transport>::update_scalar_diff(Field& scalar_diff, const std::string& name )
+{
+    BL_PROFILE("amr-wind::" + this->identifier() + "::update_scalar_diff")
+
+    if (name == "tke") {
+
+        const amrex::Real Ce = this->m_Ce;
+        auto& den = this->m_rho.state(FieldState::N);
+        auto& repo = scalar_diff.repo();
+        
+        const int nlevels = repo.num_active_levels();
+        for (int lev=0; lev < nlevels; ++lev) {
+            for (amrex::MFIter mfi(scalar_diff(lev)); mfi.isValid(); ++mfi) {
+                const auto& bx = mfi.tilebox(); 
+                const auto& rho_arr = den(lev).const_array(mfi);
+                const auto& tke_arr = (*this->m_tke)(lev).array(mfi);
+                const auto& scalar_diff_arr = scalar_diff(lev).array(mfi);
+                const auto& tlscale_arr = this->m_turb_lscale(lev).array(mfi);
+                
+                amrex::ParallelFor(
+                    bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                            scalar_diff_arr(i, j, k) = 2.0 * rho_arr(i, j, k) * Ce
+                                * tlscale_arr(i,j,k) * std::sqrt(tke_arr(i,j,k));
+                        });
+            }
+        }
+        
+    } else {
+        std::cerr << "Unknown scalar to compute diffusivity" << std::endl;
+    }
+}
+
 
 } // namespace turbulence
 

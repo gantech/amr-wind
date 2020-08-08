@@ -55,6 +55,9 @@ public:
 
     //! Update the effective thermal diffusivity field
     virtual void update_alphaeff(Field& alphaeff) override;
+
+    //! Update the effective scalar diffusivity field
+    virtual void update_scalar_diff(Field& scalar_diff, const std::string& name) override;
     
     //! Return turbulence model coefficients
     TurbulenceModel::CoeffsDictType model_coeffs() const override;
@@ -92,6 +95,9 @@ public:
     //! Update the effective thermal diffusivity field
     virtual void update_alphaeff(Field& alphaeff) override;
     
+    //! Update the effective scalar diffusivity field
+    virtual void update_scalar_diff(Field& scalar_diff, const std::string& name) override;
+    
     //! Return turbulence model coefficients
     TurbulenceModel::CoeffsDictType model_coeffs() const override;
 
@@ -102,7 +108,9 @@ private:
     Field& m_turb_lscale;
     Field& m_shear_prod;
     Field& m_buoy_prod;
+    Field& m_gamma;
     Field& m_nuT;
+    Field& m_gradT;
     Field& m_mean_stress_div;
 
     //! Reference to ABL physics object
