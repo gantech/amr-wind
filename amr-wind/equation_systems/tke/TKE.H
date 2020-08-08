@@ -29,11 +29,9 @@ struct TurbulenceOp<TKE>
 
     void operator()()
     {
-        auto& tvisc = m_tmodel.mu_turb();
         auto& mueff = m_fields.mueff;
         mueff.setVal(0.0);
-        field_ops::saxpy(
-            mueff, 2.0, tvisc, 0, 0, mueff.num_comp(), mueff.num_grow());
+        m_tmodel.update_scalar_diff(mueff, "tke");
     }
 
     turbulence::TurbulenceModel& m_tmodel;
