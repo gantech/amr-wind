@@ -109,8 +109,9 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real amd_muvel(
                                        + dz * wz * tz);
     amrex::Real denom = (ux*ux + uy*uy + uz*uz
                          + vx*vx + vy*vy + vz*vz
-                         + wx*wx + wy*wy + wz*wz);
-    return (num_shear + num_buoy)/denom;
+                         + wx*wx + wy*wy + wz*wz)
+                         + 1e-15;
+    return std::max(1e-15, (num_shear + num_buoy)/denom);
 }
 
 template <typename Stencil>
@@ -165,8 +166,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::Real amd_thermal_diff(
                                 + (dx2 * vx * tx + dy2 * vy * ty + dz2 * vz * tz) * ty
                                 + (dx2 * wx * tx + dy2 * wy * ty + dz2 * wz * tz) * tz );
 
-    amrex::Real denom =  tx*tx + ty*ty + tz*tz;
-    return num/denom;
+    amrex::Real denom =  tx*tx + ty*ty + tz*tz + 1e-15;
+    return std::max(1e-15, num/denom);
 }
     
 } // namespace turbulence

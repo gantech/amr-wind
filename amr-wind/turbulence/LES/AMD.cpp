@@ -202,9 +202,6 @@ void AMD<Transport>::update_alphaeff(Field& alphaeff) {
     BL_PROFILE("amr-wind::" + this->identifier() + "::update_turbulent_viscosity");
 
     auto& repo = alphaeff.repo();
-    auto& vel = m_vel.state(FieldState::N);
-    auto& temp = m_temperature.state(FieldState::N);
-    auto& den = m_rho.state(FieldState::N);
     auto& geom_vec = repo.mesh().Geom();
     const amrex::Real C_poincare = this->m_C;
         
@@ -220,9 +217,9 @@ void AMD<Transport>::update_alphaeff(Field& alphaeff) {
         for (amrex::MFIter mfi(alphaeff(lev)); mfi.isValid(); ++mfi) {
             const auto& bx = mfi.tilebox();
             const auto& alpha_arr = alphaeff(lev).array(mfi);
-            const auto& rho_arr = den(lev).const_array(mfi);
-            const auto& vel_arr = vel(lev).array(mfi);
-            const auto& temp_arr = temp(lev).array(mfi);
+            const auto& rho_arr = m_rho(lev).const_array(mfi);
+            const auto& vel_arr = m_vel(lev).array(mfi);
+            const auto& temp_arr = m_temperature(lev).array(mfi);
                 
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -353,8 +350,6 @@ void AMD<Transport>::update_alphaeff(Field& alphaeff) {
             } // if (!geom.isPeriodic)
         }
     }
-    
-    alphaeff.fillpatch(this->m_sim.time().current_time());
     
 }
 
