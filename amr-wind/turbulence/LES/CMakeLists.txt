@@ -1,4 +1,5 @@
 target_sources(${amr_wind_lib_name} PRIVATE
-  Smagorinsky.cpp
+  AMD.cpp
   OneEqKsgs.cpp
+  Smagorinsky.cpp
   )
