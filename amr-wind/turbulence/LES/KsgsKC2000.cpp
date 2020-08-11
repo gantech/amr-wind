@@ -17,7 +17,7 @@ template <typename Transport>
 KsgsKC2000<Transport>::KsgsKC2000(CFDSim& sim)
     : OneEqKsgs<Transport>(sim),
       m_temperature(sim.repo().get_field("temperature")),
-      m_div_mij(sim.repo().declare_field("kc2000_div_mij",3,1,1))
+      m_div_mij(sim.repo().declare_field("kc2000_div_nonlin_mij",3,1,1))
 {
 
     auto& phy_mgr = this->m_sim.physics_manager();

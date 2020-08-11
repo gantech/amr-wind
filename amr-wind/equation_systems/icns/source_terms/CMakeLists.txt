@@ -6,4 +6,5 @@ target_sources(${amr_wind_lib_name} PRIVATE
   CoriolisForcing.cpp
   BodyForce.cpp
   S94MeanStressDiv.cpp
+  KC2000DivNonlinMij.cpp
   )
