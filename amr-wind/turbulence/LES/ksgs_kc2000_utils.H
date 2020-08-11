@@ -31,17 +31,15 @@ struct KC2000NonlinStress
         const amrex::Real cs = this->m_cs;
         const amrex::Real c1 = this->m_c1;
         const amrex::Real c2 = this->m_c2;
-
+        
         const auto& bx_in = mfi.tilebox();
         const auto& bx = Stencil::box(bx_in, geom);
         if (bx.isEmpty()) return;
 
         amrex::ParallelFor(
             bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                amrex::Real gv[AMREX_SPACEDIM*AMREX_SPACEDIM];
                 amrex::Real cp1, c, cm1;
-                
-                amrex::GpuArray<amrex::Real, AMREX_SPACEDIM*AMREX_SPACEDIM> gv;
-
                 for (int icomp = 0; icomp < AMREX_SPACEDIM; icomp++) {
                     cp1 = Stencil::c00;
                     c = Stencil::c01;
@@ -71,13 +69,13 @@ struct KC2000NonlinStress
                     for (int m = 0; m < AMREX_SPACEDIM; m++) {
                         amrex::Real tmp = 0.0;
                         for (int n=0; n < AMREX_SPACEDIM; n++)
-                            tmp += cs * cs * ds * ds * 0.25
+                            tmp -= cs * cs * ds * ds * 0.25
                                 * ( c1 * (gv[l*AMREX_SPACEDIM+n]+gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] + gv[m*AMREX_SPACEDIM+n])
                                     + c2 * (gv[l*AMREX_SPACEDIM+n]+gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] - gv[m*AMREX_SPACEDIM+n])
                                     - c2 * (gv[l*AMREX_SPACEDIM+n]-gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] + gv[m*AMREX_SPACEDIM+n]) ) ;
                         mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+m) = tmp;
                     }
-                    mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+l) -= cs * cs * ds * ds * sijsij/3.0;
+                    mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+l) += cs * cs * ds * ds * sijsij/3.0;
                 }
                 
             });
