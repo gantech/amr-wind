@@ -69,13 +69,13 @@ struct KC2000NonlinStress
                     for (int m = 0; m < AMREX_SPACEDIM; m++) {
                         amrex::Real tmp = 0.0;
                         for (int n=0; n < AMREX_SPACEDIM; n++)
-                            tmp -= cs * cs * ds * ds * 0.25
+                            tmp += cs * cs * ds * ds * 0.25
                                 * ( c1 * (gv[l*AMREX_SPACEDIM+n]+gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] + gv[m*AMREX_SPACEDIM+n])
                                     + c2 * (gv[l*AMREX_SPACEDIM+n]+gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] - gv[m*AMREX_SPACEDIM+n])
                                     - c2 * (gv[l*AMREX_SPACEDIM+n]-gv[n*AMREX_SPACEDIM+l])*(gv[n*AMREX_SPACEDIM+m] + gv[m*AMREX_SPACEDIM+n]) ) ;
                         mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+m) = tmp;
                     }
-                    mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+l) += cs * cs * ds * ds * sijsij/3.0;
+                    mij_nonlin_arr(i, j, k, l*AMREX_SPACEDIM+l) -= cs * cs * ds * ds * sijsij/3.0;
                 }
                 
             });
