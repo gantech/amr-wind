@@ -91,6 +91,48 @@ public:
     TurbulenceModel::CoeffsDictType model_coeffs() const override;
 };
 
+template <typename Transport>
+class KsgsKC2000 : public OneEqKsgs<Transport>
+{
+public:
+    static std::string identifier()
+    {
+        return "KsgsKC2000-" + Transport::identifier();
+    }
+
+    KsgsKC2000(CFDSim& sim);
+
+    virtual ~KsgsKC2000();
+
+    virtual std::string model_name() const override { return "KsgsKC2000"; }
+
+    //! Update the turbulent viscosity field
+    virtual void update_turbulent_viscosity(const FieldState fstate) override;
+    
+    //! Return turbulence model coefficients
+    TurbulenceModel::CoeffsDictType model_coeffs() const override;
+
+private:
+
+    Field& m_temperature;
+    //! Divergence of nonlinear portion of sub-filter stress
+    Field& m_div_mij; 
+    
+    //! Gravity vector (m/s^2)
+    amrex::Vector<amrex::Real> m_gravity{{0.0, 0.0, -9.81}};
+
+    //! Reference temperature (Kelvin)
+    amrex::Real m_ref_theta{300.0};
+
+    //! Model constants
+    amrex::Real m_Cb{0.1};
+    amrex::Real m_Cs{0.20206109069148104};
+    amrex::Real m_C1{2.343317654848185};
+    amrex::Real m_C2{2.343317654848185};
+    
+};
+
+
 } // namespace turbulence
 } // namespace amr_wind
 
