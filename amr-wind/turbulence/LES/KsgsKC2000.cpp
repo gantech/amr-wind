@@ -6,6 +6,7 @@
 #include "amr-wind/turbulence/turb_utils.H"
 #include "amr-wind/equation_systems/tke/TKE.H"
 #include "amr-wind/turbulence/LES/ksgs_kc2000_utils.H"
+#include "amr-wind/fvm/divergence.H"
 
 #include "AMReX_ParmParse.H"
 
@@ -131,6 +132,7 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
     }
 
     auto mij = kc2000_nonlin_stress(vel, Cs, C1, C2);
+    amr_wind::fvm::divergence(m_div_mij, *mij);
     
 }
 
