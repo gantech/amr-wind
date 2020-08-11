@@ -30,6 +30,7 @@ OneEqKsgsM84<Transport>::OneEqKsgsM84(CFDSim& sim)
         amrex::ParmParse pp(coeffs_dict);
         pp.query("Ceps", this->m_Ceps);
         pp.query("Ce", this->m_Ce);
+        this->m_Ceps_ground =  (3.9/0.93) * (this->m_Ceps);
     }
 
     {
@@ -74,6 +75,8 @@ void OneEqKsgsM84<Transport>::update_turbulent_viscosity(
     
     auto& mu_turb = this->mu_turb();
     const amrex::Real Ce = this->m_Ce;
+    const amrex::Real Ceps = this->m_Ceps;
+    const amrex::Real CepsGround = this->m_Ceps_ground;
     auto& den = this->m_rho.state(fstate);
     auto& repo = mu_turb.repo();
     auto& geom_vec = repo.mesh().Geom();
@@ -96,6 +99,7 @@ void OneEqKsgsM84<Transport>::update_turbulent_viscosity(
             const auto& tke_arr = (*this->m_tke)(lev).array(mfi);
             const auto& buoy_prod_arr = (this->m_buoy_prod)(lev).array(mfi);
             const auto& shear_prod_arr = (this->m_shear_prod)(lev).array(mfi);
+            const auto& sfs_ke_diss_arr = (this->m_sfs_ke_diss)(lev).array(mfi);
             
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -120,8 +124,26 @@ void OneEqKsgsM84<Transport>::update_turbulent_viscosity(
                        * stratification;
 
                   shear_prod_arr(i,j,k) *= shear_prod_arr(i,j,k) * mu_arr(i,j,k);
+
+                  sfs_ke_diss_arr(i,j,k) = -Ceps * std::sqrt(tke_arr(i,j,k)) *
+                      tke_arr(i,j,k) / tlscale_arr(i,j,k);
                   
-                    });
+            });
+
+            auto& bctype = (*this->m_tke).bc_type();
+            for (int dir=0; dir < AMREX_SPACEDIM; ++dir) {
+                amrex::Orientation olo(dir, amrex::Orientation::low);
+                if (bctype[olo] == BC::wall_model) {
+                    amrex::Box blo = amrex::adjCellLo(bx,dir,0) & bx;
+                    if (blo.ok()) {
+                        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                          sfs_ke_diss_arr(i, j, k) = CepsGround * std::sqrt(tke_arr(i,j,k)) *
+                              tke_arr(i,j,k) / tlscale_arr(i,j,k);
+                        });
+                    }
+                }
+            }
+            
         }
     }
     

@@ -29,13 +29,10 @@ public:
         const amrex::Array4<amrex::Real>& src_term) const override;
 
 private:
-    amrex::Real m_Ceps{0.93};
-    amrex::Real m_CepsGround{3.9};
 
-    Field& m_turb_lscale;
     Field& m_shear_prod;
     Field& m_buoy_prod;
-    Field& m_tke;
+    Field& m_diss;
     
 };
 

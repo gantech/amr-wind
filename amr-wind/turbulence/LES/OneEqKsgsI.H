@@ -13,6 +13,7 @@ OneEqKsgs<Transport>::OneEqKsgs(CFDSim& sim)
       m_turb_lscale(sim.repo().declare_field("turb_lscale",1, 1, 1)),
       m_shear_prod(sim.repo().declare_field("shear_prod",1, 1, 1)),
       m_buoy_prod(sim.repo().declare_field("buoy_prod",1, 1, 1)),
+      m_sfs_ke_diss(sim.repo().declare_field("sfs_ke_diss",1, 1, 1)),
       m_rho(sim.repo().get_field("density"))
 {
     auto& tke_eqn = sim.pde_manager().register_transport_pde(pde::TKE::pde_name());

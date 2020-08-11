@@ -25,6 +25,7 @@ protected:
     Field& m_turb_lscale;
     Field& m_shear_prod;
     Field& m_buoy_prod;
+    Field& m_sfs_ke_diss;
     Field& m_rho;
 
     Field* m_tke;
@@ -32,6 +33,7 @@ protected:
     //! Turbulence constant
     amrex::Real m_Ce{0.1};
     amrex::Real m_Ceps{0.93};
+    amrex::Real m_Ceps_ground{3.9};    
 
 };
 
