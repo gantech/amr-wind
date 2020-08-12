@@ -47,7 +47,7 @@ KsgsKC2000<Transport>::KsgsKC2000(CFDSim& sim)
     }
     
     // TKE source term to be added to PDE
-    turb_utils::inject_turbulence_src_terms(pde::TKE::pde_name(), {"KsgsKC2000Src"});
+    turb_utils::inject_turbulence_src_terms(pde::TKE::pde_name(), {"OneEqKsgsSrc"});
 }
 
 template <typename Transport>
@@ -72,10 +72,13 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
 {
     BL_PROFILE("amr-wind::" + this->identifier() + "::update_turbulent_viscosity")
 
-    auto gradT = (this->m_sim.repo()).create_scratch_field(3,0);
-    compute_gradient(*gradT, m_temperature.state(fstate) );
+    auto gradT = (this->m_sim.repo()).create_scratch_field(1,0);
+    compute_dir_gradient(*gradT, m_temperature, 2);
 
     auto& vel = this->m_vel.state(fstate);
+    // Compute vertical gradient of velocity
+    auto gradVelZ = (this->m_sim.repo()).create_scratch_field(3,0);
+    compute_dir_gradient(*gradVelZ, vel, 2);
     // Compute strain rate into shear production term
     compute_strainrate(this->m_shear_prod, vel);
     
@@ -86,6 +89,7 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
     
     auto& mu_turb = this->mu_turb();
     const amrex::Real Ce = this->m_Ce;
+    const amrex::Real Ceps = this->m_Ceps;
     const amrex::Real Cs = this->m_Cs;
     const amrex::Real C1 = this->m_C1;
     const amrex::Real C2 = this->m_C2;
@@ -111,6 +115,8 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
             const auto& tke_arr = (*this->m_tke)(lev).array(mfi);
             const auto& buoy_prod_arr = (this->m_buoy_prod)(lev).array(mfi);
             const auto& shear_prod_arr = (this->m_shear_prod)(lev).array(mfi);
+            const auto& sfs_ke_diss_arr = (this->m_sfs_ke_diss)(lev).array(mfi);
+            const auto& gradVelZ_arr = (*gradVelZ)(lev).array(mfi);
             
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
@@ -118,16 +124,27 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
                   mu_arr(i, j, k) =
                       rho_arr(i, j, k) * Ce
                       * ds * std::sqrt(tke_arr(i,j,k));
+
+                  const amrex::Real strat
+                      = gradT_arr(i,j,k) * gravity[2]* beta;
                   
                   buoy_prod_arr(i,j,k) =
-                      mu_arr(i,j,k) * invPrandtl *
-                      (gradT_arr(i,j,k,0) * gravity[0]
-                        + gradT_arr(i,j,k,1) * gravity[1]
-                        + gradT_arr(i,j,k,2) * gravity[2])*beta;
+                      mu_arr(i,j,k) * invPrandtl * strat;
+
+                  const amrex::Real tmp1 =
+                      ( (strat*strat/(0.76*0.76))
+                        + (gradVelZ_arr(i,j,k,0)*gradVelZ_arr(i,j,k,0)
+                           +gradVelZ_arr(i,j,k,1)+gradVelZ_arr(i,j,k,1))
+                        /(2.76 * 2.76) )
+                      / (tke_arr(i,j,k)+1e-15);
+                  const amrex::Real invLe = std::sqrt(1.0/(ds*ds) + tmp1);
+
+                  sfs_ke_diss_arr(i,j,k) = -Ceps * std::sqrt(tke_arr(i,j,k)) *
+                      tke_arr(i,j,k) * invLe;
 
                   shear_prod_arr(i,j,k) *= shear_prod_arr(i,j,k) * mu_arr(i,j,k);
                   
-                    });
+            });
         }
     }
 
