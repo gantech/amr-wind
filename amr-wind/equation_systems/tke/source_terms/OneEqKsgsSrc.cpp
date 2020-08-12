@@ -1,6 +1,6 @@
 #include <AMReX_Orientation.H>
 
-#include "amr-wind/equation_systems/tke/source_terms/KsgsM84Src.H"
+#include "amr-wind/equation_systems/tke/source_terms/OneEqKsgsSrc.H"
 #include "amr-wind/CFDSim.H"
 #include "amr-wind/turbulence/TurbulenceModel.H"
 
@@ -8,17 +8,15 @@ namespace amr_wind {
 namespace pde {
 namespace tke {
 
-KsgsM84Src::KsgsM84Src(const CFDSim& sim)
+OneEqKsgsSrc::OneEqKsgsSrc(const CFDSim& sim)
   : m_shear_prod(sim.repo().get_field("shear_prod")),
     m_buoy_prod(sim.repo().get_field("buoy_prod")),
     m_diss(sim.repo().get_field("sfs_ke_diss"))
-{
-    AMREX_ALWAYS_ASSERT(sim.turbulence_model().model_name() == "OneEqKsgsM84");
-}
+{}
 
-KsgsM84Src::~KsgsM84Src() = default;
+OneEqKsgsSrc::~OneEqKsgsSrc() = default;
 
-void KsgsM84Src::operator()(
+void OneEqKsgsSrc::operator()(
     const int lev,
     const amrex::MFIter& mfi,
     const amrex::Box& bx,

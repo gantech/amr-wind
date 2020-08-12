@@ -1,5 +1,5 @@
-#ifndef KSGSM84SRC_H
-#define KSGSM84SRC_H
+#ifndef ONEEQKSGSSRC_H
+#define ONEEQKSGSSRC_H
 
 #include "amr-wind/equation_systems/tke/TKESource.H"
 
@@ -10,16 +10,15 @@ namespace tke {
 /** One-equation Ksgs LES turbulence model
  *   \ingroup turb_model
  *
- *  Reference to Moeng paper
  */
-class KsgsM84Src : public TKESource::Register<KsgsM84Src>
+class OneEqKsgsSrc : public TKESource::Register<OneEqKsgsSrc>
 {
 public:
-    static const std::string identifier() { return "KsgsM84Src"; }
+    static const std::string identifier() { return "OneEqKsgsSrc"; }
 
-    KsgsM84Src(const CFDSim&);
+    OneEqKsgsSrc(const CFDSim&);
 
-    virtual ~KsgsM84Src();
+    virtual ~OneEqKsgsSrc();
 
     virtual void operator()(
         const int lev,
@@ -40,4 +39,4 @@ private:
 } // namespace pde
 } // namespace amr_wind
 
-#endif /* KSGSM84SRC_H */
+#endif /* ONEEQKSGSSRC_H */
