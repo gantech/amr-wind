@@ -106,7 +106,7 @@ inline std::unique_ptr<ScratchField> kc2000_nonlin_stress(const Field& vel,
 {
     const std::string gname = "mij_nonlin";
     auto mij_nonlin = vel.repo().create_scratch_field(
-        gname, AMREX_SPACEDIM * AMREX_SPACEDIM);
+        gname, AMREX_SPACEDIM * AMREX_SPACEDIM,1);
     kc2000_nonlin_stress(*mij_nonlin, vel, cs, c1, c2);
     return mij_nonlin;
 }

@@ -134,7 +134,7 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
                   const amrex::Real tmp1 =
                       ( (strat*strat/(0.76*0.76))
                         + (gradVelZ_arr(i,j,k,0)*gradVelZ_arr(i,j,k,0)
-                           +gradVelZ_arr(i,j,k,1)+gradVelZ_arr(i,j,k,1))
+                           +gradVelZ_arr(i,j,k,1)*gradVelZ_arr(i,j,k,1))
                         /(2.76 * 2.76) )
                       / (tke_arr(i,j,k)+1e-15);
                   const amrex::Real invLe = std::sqrt(1.0/(ds*ds) + tmp1);
@@ -149,6 +149,7 @@ void KsgsKC2000<Transport>::update_turbulent_viscosity(
     }
 
     auto mij = kc2000_nonlin_stress(vel, Cs, C1, C2);
+    mij->fillpatch(this->m_sim.time().current_time());
     amr_wind::fvm::divergence(m_div_mij, *mij);
     
 }
