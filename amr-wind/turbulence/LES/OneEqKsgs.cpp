@@ -137,7 +137,7 @@ void OneEqKsgsM84<Transport>::update_turbulent_viscosity(
                     amrex::Box blo = amrex::adjCellLo(bx,dir,0) & bx;
                     if (blo.ok()) {
                         amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                          sfs_ke_diss_arr(i, j, k) = CepsGround * std::sqrt(tke_arr(i,j,k)) *
+                          sfs_ke_diss_arr(i, j, k) = -CepsGround * std::sqrt(tke_arr(i,j,k)) *
                               tke_arr(i,j,k) / tlscale_arr(i,j,k);
                         });
                     }
@@ -275,7 +275,8 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
     */
 
     const auto& abl_stats = m_abl.abl_stats(); //Get ABLStats object
-        
+
+    (this->m_temperature).fillpatch(this->m_sim.time().current_time());    
     //auto gradT = (this->m_sim.repo()).create_scratch_field(3,1)  ;
     compute_gradient(m_gradT, m_temperature);
 
@@ -321,12 +322,12 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
 
               amrex::Real stratification =
-                  (gradT_arr(i,j,k,0) * gravity[0]
+                  -(gradT_arr(i,j,k,0) * gravity[0]
                    + gradT_arr(i,j,k,1) * gravity[1]
                    + gradT_arr(i,j,k,2) * gravity[2])*beta;
               if(stratification > 1e-10)
                   tlscale_arr(i,j,k) =
-                      0.76 * stratification * std::sqrt(tke_arr(i,j,k));
+                      amrex::min(ds, 0.76 * std::sqrt(tke_arr(i,j,k)/stratification));
               else
                   tlscale_arr(i,j,k) = ds;
 
@@ -334,7 +335,7 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
                   * tlscale_arr(i,j,k) * std::sqrt(tke_arr(i,j,k));
 
               buoy_prod_arr(i,j,k) =
-                  mut * (1.0 + 2.0 * tlscale_arr(i,j,k)/ds)
+                  -mut * (1.0 + 2.0 * tlscale_arr(i,j,k)/ds)
                   * stratification;
               
               sfs_ke_diss_arr(i,j,k) = -Ceps * std::sqrt(tke_arr(i,j,k)) *
@@ -362,7 +363,7 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
                     amrex::Box blo = amrex::adjCellLo(bx,dir,0) & bx;
                     if (blo.ok()) {
                         amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
-                          sfs_ke_diss_arr(i, j, k) = CepsGround * std::sqrt(tke_arr(i,j,k)) *
+                          sfs_ke_diss_arr(i, j, k) = -CepsGround * std::sqrt(tke_arr(i,j,k)) *
                               tke_arr(i,j,k) / tlscale_arr(i,j,k);
                         });
                     }
@@ -416,6 +417,9 @@ void OneEqKsgsS94<Transport>::update_turbulent_viscosity(
     (this->m_gradT).fillpatch(this->m_sim.time().current_time());
     (this->m_mean_stress_div).setVal(0.0);
     compute_dir_gradient((this->m_mean_stress_div), (this->m_gradT), 2);
+
+    compute_gradient(m_gradT, m_temperature);
+    
 }
 
 template <typename Transport>
