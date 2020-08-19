@@ -256,6 +256,8 @@ void ABLStats::prepare_netcdf_file()
     ncf.def_dim("ndim", AMREX_SPACEDIM);
 
     ncf.def_var("time", NC_DOUBLE, {nt_name});
+    ncf.def_var("Q", NC_DOUBLE, {nt_name});
+    ncf.def_var("Tsurf", NC_DOUBLE, {nt_name});    
     ncf.def_var("ustar", NC_DOUBLE, {nt_name});
     ncf.def_var("wstar", NC_DOUBLE, {nt_name});
     ncf.def_var("L", NC_DOUBLE, {nt_name});
@@ -317,8 +319,14 @@ void ABLStats::write_netcdf()
         auto ustar = m_abl_wall_func.utau();
         ncf.var("ustar").put(&ustar, {nt}, {1});
         double wstar = 0.0;
+        auto Q = m_abl_wall_func.surface_temp_flux();
+        ncf.var("Q").put(&Q, {nt}, {1});
+        auto Tsurf = m_abl_wall_func.surface_temp();
+        ncf.var("Tsurf").put(&Tsurf, {nt}, {1});        
+        if (Q > 1e-10)
+            wstar = std::cbrt(m_gravity * Q * m_zi / m_ref_theta);        
         ncf.var("wstar").put(&wstar, {nt}, {1});
-        double L = 0.0;
+        double L = m_abl_wall_func.obukhov_length();
         ncf.var("L").put(&L, {nt}, {1});
         ncf.var("zi").put(&m_zi, {nt}, {1});
 
