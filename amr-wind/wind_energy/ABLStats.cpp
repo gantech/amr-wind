@@ -3,6 +3,7 @@
 #include "amr-wind/utilities/io_utils.H"
 #include "amr-wind/utilities/ncutils/nc_interface.H"
 #include "amr-wind/utilities/DirectionSelector.H"
+#include "amr-wind/utilities/tensor_ops.H"
 
 #include "AMReX_ParmParse.H"
 #include "AMReX_ParallelDescriptor.H"
@@ -42,6 +43,11 @@ void ABLStats::initialize()
         pp.query("stats_output_format", m_out_fmt);
         pp.query("normal_direction", m_normal_dir);
         AMREX_ASSERT((0 <= m_normal_dir) && (m_normal_dir < AMREX_SPACEDIM));
+        pp.query("kappa", m_kappa);
+        amrex::Vector<amrex::Real> gravity{{0.0, 0.0, -9.81}};
+        pp.queryarr("gravity", gravity);
+        m_gravity = utils::vec_mag(gravity.data());
+        pp.get("reference_temperature", m_ref_theta);
     }
 
     // Get normal direction and associated stuff
