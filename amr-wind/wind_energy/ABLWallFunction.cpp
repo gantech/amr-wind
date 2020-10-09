@@ -273,6 +273,20 @@ void ABLWallFunction::computeusingheatflux()
         iter += 1;
     } while ((std::abs(m_utau_iter - m_utau) > 1e-5) && iter <= m_max_iter);
 
+    if(iter == m_max_iter) {
+        amrex::Print() << "warning wall model is not converging within max iterations: " << m_max_iter << std::endl;
+        amrex::Print() << "obukhov_length: " << m_obukhov_length << std::endl;
+        amrex::Print() << "zeta: " << zeta << std::endl;
+        amrex::Print() << "psi_m: " << m_psi_m << std::endl;
+        amrex::Print() << "psi_h: " << m_psi_h << std::endl;
+        amrex::Print() << "u_tau: " << m_utau << std::endl;
+        if (m_tempflux) {
+            amrex::Print() << "surf_temp: " << m_surf_temp << std::endl;
+        } else {
+            amrex::Print() << "surf_temp_flux: " << m_surf_temp_flux << std::endl;
+        }
+    }
+
     auto xy_arr = m_store_xy_vel_temp.array();
 
     const amrex::Real umean0 = m_umean[0];
@@ -284,7 +298,12 @@ void ABLWallFunction::computeusingheatflux()
     const amrex::Real tau_xz = umean0 / m_mean_windspeed;
     const amrex::Real tau_yz = umean1 / m_mean_windspeed;
     const amrex::Real tau_thetaz = -m_surf_temp_flux;
-    const amrex::Real denom1 = mean_windspd * (mean_pot_temp - ref_temp);
+    amrex::Real denom1 = mean_windspd * (mean_pot_temp - ref_temp);
+
+    if(denom1 < m_small_denom){
+        amrex::Print() << "warning small denominator in heat flux, setting to: " << m_small_denom << std::endl;
+        denom1 = m_small_denom;
+    }
 
     amrex::ParallelFor(
         m_bx_z_sample, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {

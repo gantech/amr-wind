@@ -106,7 +106,7 @@ private:
     bool m_tempflux;
     amrex::Real m_surf_temp_flux;
     amrex::Real m_surf_temp_rate;
-    amrex::Real m_surf_temp_rate_tstart;
+    amrex::Real m_surf_temp_rate_tstart{0.0};
     amrex::Real m_surf_temp_init;
     amrex::Real m_obukhov_length;
     amrex::Real m_psi_m, m_psi_h;
@@ -118,6 +118,8 @@ private:
     amrex::Real m_beta_m{16.0};
 
     const int m_max_iter{25};
+
+    const amrex::Real m_small_denom{1.0e-4};
 };
 
 /** Applies a shear-stress value at the domain boundary
