@@ -300,9 +300,9 @@ void ABLWallFunction::computeusingheatflux()
     const amrex::Real tau_thetaz = -m_surf_temp_flux;
     amrex::Real denom1 = mean_windspd * (mean_pot_temp - ref_temp);
 
-    if(denom1 < m_small_denom){
+    if(amrex::Math::abs(denom1) < m_small_denom){
         amrex::Print() << "warning small denominator in heat flux, setting to: " << m_small_denom << std::endl;
-        denom1 = m_small_denom;
+        denom1 = amrex::Math::copysign(amrex::Real(1.0),denom1)*m_small_denom;
     }
 
     amrex::ParallelFor(
