@@ -119,7 +119,6 @@ private:
 
     const int m_max_iter{25};
 
-    const amrex::Real m_small_denom{1.0e-4};
 };
 
 /** Applies a shear-stress value at the domain boundary
