@@ -300,6 +300,33 @@ void ABLWallFunction::computeusingheatflux()
     const amrex::Real tau_thetaz = -m_surf_temp_flux;
     amrex::Real denom1 = mean_windspd * (mean_pot_temp - ref_temp);
 
+    if ((mean_pot_temp - m_surf_temp) < 0.1) {
+
+        amrex::ParallelFor(
+            m_bx_z_sample, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+
+              xy_arr(i, j, k, 3) = tau_thetaz;
+
+        });
+    } else {
+
+        amrex::ParallelFor(
+            m_bx_z_sample, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+              const amrex::Real inst_wind_speed = std::sqrt(
+                  xy_arr(i, j, k, 0) * xy_arr(i, j, k, 0) +
+                  xy_arr(i, j, k, 1) * xy_arr(i, j, k, 1));
+              
+              const amrex::Real num1 =
+                  (xy_arr(i, j, k, 3) - mean_pot_temp) * mean_windspd;
+              const amrex::Real num2 = inst_wind_speed * (mean_pot_temp - m_surf_temp);
+              
+              xy_arr(i, j, k, 3) = tau_thetaz * (num1 + num2) / denom1;
+                               
+        });
+        
+    }
+
+    
     amrex::ParallelFor(
         m_bx_z_sample, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
             const amrex::Real inst_wind_speed = std::sqrt(
@@ -318,12 +345,6 @@ void ABLWallFunction::computeusingheatflux()
                  inst_wind_speed * umean1) /
                 (mean_windspd * umean1);
 
-            const amrex::Real num1 =
-                (xy_arr(i, j, k, 3) - mean_pot_temp) * mean_windspd;
-            const amrex::Real num2 = inst_wind_speed * (mean_pot_temp - ref_temp);
-
-//            xy_arr(i, j, k, 3) = tau_thetaz * (num1 + num2) / denom1;
-            xy_arr(i, j, k, 3) = -(xy_arr(i, j, k, 3) - mean_pot_temp) * m_utau * m_kappa / (std::log(m_log_law_height / m_z0) - m_psi_h) + tau_thetaz*inst_wind_speed/mean_windspd;
         });
 }
 
