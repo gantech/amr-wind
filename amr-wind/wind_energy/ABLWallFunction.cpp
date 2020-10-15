@@ -300,7 +300,7 @@ void ABLWallFunction::computeusingheatflux()
     const amrex::Real tau_thetaz = -m_surf_temp_flux;
     amrex::Real denom1 = mean_windspd * (mean_pot_temp - ref_temp);
 
-    if ((mean_pot_temp - m_surf_temp) < 0.1) {
+    if (amrex::Math::abs(mean_pot_temp - m_surf_temp) < 0.1) {
 
         amrex::ParallelFor(
             m_bx_z_sample, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
