@@ -24,7 +24,7 @@ ABLStats::ABLStats(
     CFDSim& sim, const ABLWallFunction& abl_wall_func, const int dir)
     : m_sim(sim)
     , m_abl_wall_func(abl_wall_func)
-    , m_temperature(sim.repo().get_field("temperature"))
+    , m_temperature(sim.repo().get_fieHEADld("temperature"))
     , m_mueff(sim.pde_manager().icns().fields().mueff)
     , m_pa_vel(sim, dir)
     , m_pa_temp(m_temperature, sim.time(), dir)
@@ -185,9 +185,8 @@ void ABLStats::compute_zi(const h1_dir& h1Sel, const h2_dir& h2Sel)
 
     // Only compute zi using coarsest level
 
-    amrex::Gpu::DeviceVector<TemperatureGradient> tgrad(
-        m_ncells_h1 * m_ncells_h2);
-    auto* tgrad_ptr = tgrad.data();
+    amrex::Vector<TemperatureGradient> temp_grad(m_ncells_h1 * m_ncells_h2);
+    auto* tgrad_ptr = temp_grad.data();
     {
         const int normal_dir = m_normal_dir;
         const size_t ncells_h1 = m_ncells_h1;
@@ -195,6 +194,17 @@ void ABLStats::compute_zi(const h1_dir& h1Sel, const h2_dir& h2Sel)
         for (amrex::MFIter mfi(m_temperature(0)); mfi.isValid(); ++mfi) {
             const auto& bx = mfi.tilebox();
             const auto& gradT_arr = (*gradT)(0).array(mfi);
+
+            //Initialize tgrad.gradz to 0.0
+            amrex::ParallelFor(
+                bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
+                        int h1 = h1Sel(i, j, k);
+                        int h2 = h2Sel(i, j, k);
+                        tgrad_ptr[h2 * ncells_h2 + h1].grad_z = 0.0;
+                        tgrad_ptr[h2 * ncells_h2 + h1].max_grad_loc = 0.0;
+                });
+
+            //Now loop over cells and determine max gradT            
             amrex::ParallelFor(
                 bx, [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept {
                     int h1 = h1Sel(i, j, k);
@@ -209,12 +219,8 @@ void ABLStats::compute_zi(const h1_dir& h1Sel, const h2_dir& h2Sel)
                 });
         }
     }
-
-    amrex::Vector<TemperatureGradient> temp_grad(m_ncells_h1 * m_ncells_h2);
-    amrex::Vector<TemperatureGradient> gtemp_grad(m_ncells_h1 * m_ncells_h2);
-    amrex::Gpu::copy(
-        amrex::Gpu::deviceToHost, tgrad.begin(), tgrad.end(),
-        temp_grad.begin());
+    
+    amrex::Vector<TemperatureGradient> gtemp_grad(m_ncells_h1 * m_ncells_h2);    
 #ifdef AMREX_USE_MPI
     MPI_Reduce(
         &temp_grad[0], &gtemp_grad[0], m_ncells_h1 * m_ncells_h2,
@@ -225,9 +231,8 @@ void ABLStats::compute_zi(const h1_dir& h1Sel, const h2_dir& h2Sel)
 
     m_zi = 0.0;
     if (amrex::ParallelDescriptor::IOProcessor()) {
-        for (size_t i = 0; i < m_ncells_h1 * m_ncells_h2; i++) {
+        for (size_t i = 0; i < m_ncells_h1 * m_ncells_h2; i++)
             m_zi += gtemp_grad[i].max_grad_loc;
-        }
         m_zi /=
             (static_cast<double>(m_ncells_h1) *
              static_cast<double>(m_ncells_h2));
