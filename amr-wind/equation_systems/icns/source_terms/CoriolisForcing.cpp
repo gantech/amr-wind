@@ -43,6 +43,11 @@ CoriolisForcing::CoriolisForcing(const CFDSim& sim)
     pp.query("rotational_time_period", rot_time_period);
     m_coriolis_factor = 2.0 * utils::two_pi() / rot_time_period;
 
+    bool to_vert_force = false;
+    pp.query("turn_off_vertical_force", to_vert_force);
+    if (to_vert_force)
+        m_vert_cf = 0.0;
+
     pp.queryarr("east_vector", m_east, 0, AMREX_SPACEDIM);
     pp.queryarr("north_vector", m_north, 0, AMREX_SPACEDIM);
     utils::vec_normalize(m_east.data());
@@ -93,7 +98,7 @@ void CoriolisForcing::operator()(
 
         src_term(i, j, k, 0) += ax;
         src_term(i, j, k, 1) += ay;
-        src_term(i, j, k, 2) += az;
+        src_term(i, j, k, 2) += az * m_vert_cf;
     });
 }
 
