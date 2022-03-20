@@ -24,7 +24,7 @@ ABLStats::ABLStats(
     CFDSim& sim, const ABLWallFunction& abl_wall_func, const int dir)
     : m_sim(sim)
     , m_abl_wall_func(abl_wall_func)
-    , m_temperature(sim.repo().get_fieHEADld("temperature"))
+    , m_temperature(sim.repo().get_field("temperature"))
     , m_mueff(sim.pde_manager().icns().fields().mueff)
     , m_pa_vel(sim, dir)
     , m_pa_temp(m_temperature, sim.time(), dir)
@@ -190,6 +190,7 @@ void ABLStats::compute_zi(const h1_dir& h1Sel, const h2_dir& h2Sel)
     {
         const int normal_dir = m_normal_dir;
         const size_t ncells_h1 = m_ncells_h1;
+        const size_t ncells_h2 = m_ncells_h2;
         amrex::Real dnval = m_dn;
         for (amrex::MFIter mfi(m_temperature(0)); mfi.isValid(); ++mfi) {
             const auto& bx = mfi.tilebox();
