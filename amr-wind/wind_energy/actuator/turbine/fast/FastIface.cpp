@@ -206,13 +206,13 @@ void FastIface::fast_init_turbine(FastTurbine& fi)
     int abort_lev;
     char inp_file[fast_strlen()];
     copy_filename(fi.input_file, inp_file);
-    int * null_int_ptr = NULL;
-    float * null_flt_ptr = NULL;
+    int zero_int = 0;
+    float zero_float = 0.0;
 
     fast_func(
         FAST_OpFM_Init, &fi.tid_local, &fi.stop_time, inp_file, &fi.tid_global,
-        null_int_ptr, &m_num_sc_inputs, &m_num_sc_outputs,
-        null_flt_ptr, null_flt_ptr, &fi.num_pts_blade,
+        &zero_int, &m_num_sc_inputs, &m_num_sc_outputs,
+        &zero_float, &zero_float, &fi.num_pts_blade,
         &fi.num_pts_tower, fi.base_pos, &abort_lev, &fi.dt_fast, &fi.num_blades,
         &fi.num_blade_elem, &fi.to_cfd, &fi.from_cfd, &fi.to_sc, &fi.from_sc);
 
